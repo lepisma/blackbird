@@ -141,17 +141,17 @@
         top: 50%;
         transform: translateY(-50%);
         font-size: 15px;
-        font-family: "Bebas Neue";
         color: $accent;
         white-space: nowrap;
         overflow: hidden;
 
         #track-name {
+            font-family: "Bebas Neue Regular";
             font-size: 30px;
         }
 
         #artist-name {
-            font-weight: bold;
+            font-family: "Bebas Neue Bold";
             color: #949494;
         }
     }
@@ -202,7 +202,7 @@
         input {
             border: none;
             background-color: transparent;
-            font-family: "hack";
+            font-family: "Hack";
             color: white;
             width: inherit;
         }
