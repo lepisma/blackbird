@@ -1,0 +1,20 @@
+{
+    "global": {
+        "db_path": "base/data.db",
+        "media_root": "D",
+        "features_file": "base/features.pkl"
+    },
+    "utils": {
+        "mediamonkey": {
+            "db_path": "path/to/MM.DB"
+        }
+    },
+    "addins": {
+        "lastfm": {
+            "user": "lastfm user name",
+            "passhash": "lastfm password md5",
+            "API_KEY": "lastfm API key",
+            "SECRET": "lastfm secret"
+        }
+    }
+}

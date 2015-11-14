@@ -1,0 +1,29 @@
+{
+    "name": "blackbird",
+    "version": "0.0.1",
+    "description": "music player",
+    "main": "index.js",
+    "dependencies": {
+        "jquery": "",
+        "jquery-ui": "",
+        "font-awesome": "",
+        "musicmetadata": "",
+        "electron-prebuilt": "",
+        "d3": ""
+    },
+    "scripts": {
+        "start": "electron ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/lepisma/blackbird.git"
+    },
+    "author": "Abhinav Tushar",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/lepisma/blackbird/issues"
+    },
+    "homepage": "https://github.com/lepisma/blackbird#readme",
+    "devDependencies": {
+    }
+}
