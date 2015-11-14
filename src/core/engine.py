@@ -312,6 +312,3 @@ class engine:
         # Handle sleep
         if self.sleep is not None:
             self.sleep -= 1
-
-        # Update HMM
-        print "song played"

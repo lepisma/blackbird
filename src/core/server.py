@@ -37,7 +37,8 @@ def played_trigger():
     Run post play tasks
     """
 
-    return eng.played()
+    eng.played()
+    return ""
 
 @app.route("/command")
 def command():
