@@ -54,6 +54,7 @@
         border-radius: 3px;
         -webkit-app-region: no-drag;
         box-shadow: 0px 0px 10px;
+        z-index: 1;
 
         #cover {
             width: 100%;
@@ -163,24 +164,6 @@
     top: 120px;
     bottom: 40px;
     width: 100%;
-    z-index: -1;
-
-    // Grid
-    .axis path,
-    .axis line{
-        fill: none;
-        stroke: $middle;
-    }
-
-    .data {
-        fill: $middle;
-    }
-
-    // ripples
-    .ripple {
-        fill: none;
-        stroke: $accent;
-    }
 }
 
 // Status and command
