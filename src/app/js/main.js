@@ -49,12 +49,15 @@ $(document).ready(function() {
     $(document).on("keypress", "#command-input", function(e) {
         if (e.which == 13) {
             var cmd = $("#command-input").val();
-            // Show loading
+            blackbird.loading(true);
             $.get(
                 blackbird.player.root + "command",
                 {command: cmd},
                 function(data) {
-                    // Do things here
+                    if (data == "nf") {
+                        blackbird.flash();
+                    }
+                    blackbird.loading(false);
                 }
             );
         }
