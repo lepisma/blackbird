@@ -89,7 +89,7 @@ blackbird.Player.prototype.play = function() {
         blackbird.updateSeek(0);
         blackbird.updatePlayPause(true);
         that.genCoords(function() {
-            blackbird.plotScatter(that.sequence[that.currentIndex]);
+            blackbird.plotScatter(that.sequence[that.currentIndex], true);
         });
         // TODO: last fm now playing
         that.scrobbled = false;

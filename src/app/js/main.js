@@ -21,6 +21,11 @@ $(document).ready(function() {
         // Create visualizer
         blackbird.initVisualizer(blackbird.player.audioElem);
 
+        // Hot start scatter
+        blackbird.player.genCoords(function() {
+            blackbird.plotScatter(blackbird.player.sequence[blackbird.player.currentIndex], false);
+        });
+
         // First play
         blackbird.player.next();
     });
@@ -61,7 +66,7 @@ $(document).ready(function() {
                     if (data[0] == "m") {
                         blackbird.setMode(data[1]);
                         blackbird.player.genCoords(function() {
-                            blackbird.plotScatter(-1);
+                            blackbird.plotScatter(-1, true);
                         });
                     }
                     else if (data[0] == "r") {

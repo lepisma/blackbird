@@ -3,49 +3,82 @@
 
 var blackbird = blackbird || {};
 
-blackbird.plotScatter = function(currentId) {
+blackbird.scatterStates = {
+    current: -1
+};
+
+var width,
+    height,
+    xValues,
+    yValues,
+    zoom,
+    x,
+    y,
+    canvas;
+
+blackbird.plotScatter = function(currentId, redraw) {
 
     if (currentId != -1) {
-        blackbird.scatterStates = {
-            current: currentId
-        };
+        blackbird.scatterStates.current = currentId;
     }
 
-    var width = $("#scatter").width(),
+    if (redraw) {
+        draw();
+        return;
+    }
+
+    width = $("#scatter").width(),
     height = $("#scatter").height();
 
-    var zoom = d3.behavior.zoom();
+    zoom = d3.behavior.zoom();
 
-    var xValues = blackbird.coords.map(function(d) {
+    xValues = blackbird.coords.map(function(d) {
         return d[1];
     });
-    var yValues = blackbird.coords.map(function(d) {
+    yValues = blackbird.coords.map(function(d) {
         return d[2];
     });
 
     // Hard coding scale to test things
-    var x = d3.scale.linear()
+    x = d3.scale.linear()
         .domain([Math.min.apply(null, xValues), Math.max.apply(null, xValues)])
         .range([0, width]);
 
-    var y = d3.scale.linear()
+    y = d3.scale.linear()
         .domain([Math.min.apply(null, yValues), Math.max.apply(null, yValues)])
         .range([height, 0]);
 
-    var canvas = d3.select("#scatter-canvas")
+    canvas = d3.select("#scatter-canvas")
         .attr("width", width)
         .attr("height", height)
         .call(zoom.x(x).y(y).scaleExtent([1, 10]).on("zoom", zoomed))
         .node().getContext("2d");
 
-    draw();
-
     function zoomed() {
-        canvas.clearRect(0, 0, width, height);
         draw();
     }
 
+    $(window).resize(function() {
+        resizeCanvas();
+    });
+
+    function resizeCanvas() {
+        height = $("#scatter").height();
+        width = $("#scatter").width();
+
+        $("#scatter-canvas")[0].height = height;
+        $("#scatter-canvas")[0].width = width;
+
+        x.range([0, width]);
+        y.range([height, 0]);
+
+        draw();
+    }
+
+    // Actual canvas drawing
     function draw() {
+
+        canvas.clearRect(0, 0, width, height);
 
         canvas.strokeStyle = "rgba(255, 255, 255, 0.07)";
 
@@ -93,7 +126,7 @@ blackbird.plotScatter = function(currentId) {
         canvas.fillStyle = "rgba(149, 165, 166, 0.6)";
         canvas.fill();
 
-
+        // Currently playing track
         canvas.beginPath();
         d = blackbird.coords[blackbird.scatterStates.current];
         cx = x(d[1]);
@@ -109,22 +142,6 @@ blackbird.plotScatter = function(currentId) {
         canvas.stroke();
     }
 
-    $(window).resize(function() {
-        resizeCanvas();
-    });
-
-    function resizeCanvas() {
-        height = $("#scatter").height();
-        width = $("#scatter").width();
-
-        $("#scatter-canvas")[0].height = height;
-        $("#scatter-canvas")[0].width = width;
-        canvas.clearRect(0, 0, width, height);
-
-        x.range([0, width]);
-        y.range([height, 0]);
-
-        draw();
-    }
-
+    // Draw
+    draw();
 };
