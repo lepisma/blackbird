@@ -4,7 +4,8 @@
 // Initialize analyser and stuff
 blackbird.initVisualizer = function(audioElem) {
 
-    var ctx,
+    var canvas,
+        ctx,
         source,
         context,
         analyser,
@@ -37,7 +38,8 @@ blackbird.initVisualizer = function(audioElem) {
 	  analyser = context.createAnalyser();
     analyser.smoothingTimeConstant = 0.7;
     analyser.fftSize = 1024;
-	  ctx = $("#vis")[0].getContext("2d");
+    canvas = $("#vis")[0];
+	  ctx = canvas.getContext("2d");
 	  source = context.createMediaElementSource(audioElem);
 	  source.connect(analyser);
 	  analyser.connect(context.destination);
