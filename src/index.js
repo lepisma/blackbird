@@ -10,9 +10,6 @@ require("crash-reporter").start();
 var mainWindow = null;
 
 app.on("ready", function() {
-    // Run python server
-    // var server = require("child_process").spawn("python", [__dirname + "/core/server.py"]);
-
     mainWindow = new BrowserWindow({
         width: 800,
         height: 560,
@@ -69,6 +66,5 @@ app.on("ready", function() {
     // Emitted when the window is closed.
     mainWindow.on("closed", function() {
         mainWindow = null;
-        // server.kill("SIGINT");
     });
 });

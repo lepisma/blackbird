@@ -5,7 +5,7 @@ var blackbird = blackbird || {};
 
 $(document).ready(function() {
 
-    blackbird.player = new blackbird.Player(blackbird.db, function() {
+    blackbird.player = new blackbird.Player(blackbird.config.db, function() {
         // Create seek slider
         $("#seek-bar").slider({
             min: 0,
@@ -20,6 +20,11 @@ $(document).ready(function() {
 
         // Create visualizer
         blackbird.initVisualizer(blackbird.player.audioElem);
+
+        // Generate scatter
+        blackbird.player.coords(function(rows) {
+            blackbird.plotScatter(rows);
+        });
 
         // First play
         blackbird.player.next();

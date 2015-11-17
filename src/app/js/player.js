@@ -6,7 +6,8 @@ var blackbird = blackbird || {};
 // Things for cover art
 blackbird.fs = require("fs");
 blackbird.mm = require("musicmetadata");
-sqlite = require("sqlite3");
+blackbird.lastfm = require("simple-lastfm");
+blackbird.sqlite = require("sqlite3");
 
 // Utility functions
 var shuffle = function(array) {
@@ -28,7 +29,7 @@ var shuffle = function(array) {
 
 blackbird.Player = function(dbName, callback) {
     var that = this;
-    that.db = new sqlite.Database(dbName);
+    that.db = new blackbird.sqlite.Database(dbName);
 
     // Load data from base
     // that.feature = feats
@@ -312,6 +313,7 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
         // Love track
         if (that.currentData != null) {
             // Last fm request here
+            callback("nf");
         }
         else {
             callback("nf");
@@ -338,4 +340,13 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
     else {
         callback("nf");
     }
+};
+
+// Get coordinates for plotting
+blackbird.Player.prototype.coords = function(callback) {
+    var that = this;
+
+    that.db.all("SELECT id, x, y FROM COORDS", function(err, rows) {
+        callback(rows);
+    });
 };
