@@ -188,6 +188,22 @@
         }
     }
 
+    #hover-info {
+        position: fixed;
+        right: 20px;
+        text-align: right;
+        bottom: 60px;
+        font-variant: small-caps;
+        font-family: "Hack";
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.3);
+        pointer-events:none;
+
+        #hover-artist {
+            font-size: 12px;
+        }
+    }
+
     #command-line {
         padding: 5px;
         float: left;

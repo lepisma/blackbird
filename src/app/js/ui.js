@@ -10,6 +10,12 @@ blackbird.updateInfo = function(title, artist, coverData) {
     $("#cover-image").attr("src", coverData);
 };
 
+// Update hover update
+blackbird.hoverInfo  = function(title, artist) {
+    $("#hover-track").text(title.toLowerCase());
+    $("#hover-artist").text(artist.toLowerCase());
+};
+
 // Update seek position
 blackbird.updateSeek = function(position) {
     $("#seek-bar").slider("option", "value", position);

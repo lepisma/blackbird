@@ -123,6 +123,14 @@ blackbird.Player.prototype.play = function() {
     });
 };
 
+// Single click and play
+// Disturbs the main sequence, replaces the current element
+blackbird.Player.prototype.singlePlay = function(songIdx) {
+    var that = this;
+    that.sequence[that.currentIndex] = songIdx;
+    that.play();
+};
+
 // Play next
 blackbird.Player.prototype.next = function() {
 
