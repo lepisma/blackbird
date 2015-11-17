@@ -160,9 +160,8 @@ blackbird.plotScatter = function(currentId, redraw) {
     canvas.canvas.addEventListener("mousemove", function(evt) {
         var mousePos = getMousePos(canvas.canvas, evt);
         // Find coordinates in coords space
-        // TODO: fix this
-        mousePos.x = x.invert((mousePos.x / zoom.scale()) + zoom.translate()[0]);
-        mousePos.y = y.invert((mousePos.y / zoom.scale()) + zoom.translate()[1]);
+        mousePos.x = x.invert(mousePos.x);
+        mousePos.y = y.invert(mousePos.y);
 
         blackbird.scatterStates.hover = getNearestPoint(mousePos);
         draw();
