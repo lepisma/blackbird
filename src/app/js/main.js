@@ -3,25 +3,26 @@
 
 var blackbird = blackbird || {};
 
-blackbird.player = {};
-
 $(document).ready(function() {
 
-    blackbird.player = new blackbird.Player(blackbird.api_root);
+    blackbird.player = new blackbird.Player(blackbird.db, function() {
+        // Create seek slider
+        $("#seek-bar").slider({
+            min: 0,
+            max: 100,
+            value: 0,
+            range: "min",
+            animate: true,
+            slide: function(event, ui) {
+                blackbird.player.seek(ui.value);
+            }
+        });
 
-    // First play
-    blackbird.player.next();
+        // Create visualizer
+        blackbird.initVisualizer(blackbird.player.audioElem);
 
-    // Create seek slider
-    $("#seek-bar").slider({
-        min: 0,
-        max: 100,
-        value: 0,
-        range: "min",
-        animate: true,
-        slide: function(event, ui) {
-            blackbird.player.seek(ui.value);
-        }
+        // First play
+        blackbird.player.next();
     });
 
     // Player control logic
@@ -34,7 +35,9 @@ $(document).ready(function() {
     });
 
     $("#play-btn").click(function() {
-        blackbird.player.pause();
+        blackbird.player.pause(function(playState) {
+            blackbird.updatePlayPause(playState);
+        });
     });
 
     // Command line entry
@@ -50,16 +53,23 @@ $(document).ready(function() {
         if (e.which == 13) {
             var cmd = $("#command-input").val();
             blackbird.loading(true);
-            $.get(
-                blackbird.player.root + "command",
-                {command: cmd},
-                function(data) {
-                    if (data == "nf") {
-                        blackbird.flash();
-                    }
-                    blackbird.loading(false);
+            blackbird.player.execute(cmd, function(data) {
+                if ((data == "nf") || (data.length != 2)) {
+                    blackbird.flash();
                 }
-            );
+                else {
+                    if (data[0] == "m") {
+                        blackbird.setMode(data[1]);
+                    }
+                    else if (data[0] == "r") {
+                        blackbird.setRepeat(data[1]);
+                    }
+                    else if (data[0] == "s") {
+                        blackbird.setSleep(data[1]);
+                    }
+                }
+                blackbird.loading(false);
+            });
         }
     });
 });

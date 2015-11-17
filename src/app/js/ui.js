@@ -4,9 +4,10 @@
 var blackbird = blackbird || {};
 
 // Update info of playback
-blackbird.updateInfo = function(title, artist) {
+blackbird.updateInfo = function(title, artist, coverData) {
     $("#track-name").text(title);
     $("#artist-name").text(artist);
+    $("#cover-image").attr("src", coverData);
 };
 
 // Update seek position
@@ -49,4 +50,29 @@ blackbird.flash = function() {
     setTimeout(function() {
         bar.removeClass("error", 2000, "linear");
     }, 500);
+};
+
+// Repeat icon
+blackbird.setRepeat = function(state) {
+    if (state) {
+        $(".fa-repeat").removeClass("disabled");
+    }
+    else {
+        $(".fa-repeat").addClass("disabled");
+    }
+};
+
+// Sleep icon
+blackbird.setSleep = function(state) {
+    if (state) {
+        $(".fa-moon-o").removeClass("disabled");
+    }
+    else {
+        $(".fa-moon-o").addClass("disabled");
+    }
+};
+
+// Set mode
+blackbird.setMode = function(mode) {
+    ;
 };

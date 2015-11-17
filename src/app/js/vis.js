@@ -1,9 +1,10 @@
 // Audio Visualizer
 // -----------
 
-$(window).load(function() {
-    var canvas,
-        ctx,
+// Initialize analyser and stuff
+blackbird.initVisualizer = function(audioElem) {
+
+    var ctx,
         source,
         context,
         analyser,
@@ -14,26 +15,7 @@ $(window).load(function() {
         bins,
         colorText;
 
-    // Initialize analyser and stuff
-    function initVisualizer() {
-	      context = new AudioContext();
-	      analyser = context.createAnalyser();
-        analyser.smoothingTimeConstant = 0.7;
-        analyser.fftSize = 1024;
-	      canvas = document.getElementById("vis");
-	      ctx = canvas.getContext("2d");
-	      source = context.createMediaElementSource(blackbird.player.audioElem);
-	      source.connect(analyser);
-	      analyser.connect(context.destination);
-        // init sizes
-        bars = 40;
-        bins = Math.floor(512 / bars);
-        barWidth = canvas.width / bars;
-        colorText = "rgba(155, 155, 155,";
-	      frameLooper();
-    }
-
-    function frameLooper(){
+    var frameLooper = function() {
 	      window.requestAnimationFrame(frameLooper);
 	      fbcArray = new Uint8Array(analyser.frequencyBinCount);
 	      analyser.getByteFrequencyData(fbcArray);
@@ -49,7 +31,20 @@ $(window).load(function() {
             ctx.shadowColor = colorText + barOpacity + ")";
 		        ctx.fillRect(i * barWidth, 0, barWidth, canvas.height);
 	      }
-    }
+    };
 
-    initVisualizer();
-});
+	  context = new AudioContext();
+	  analyser = context.createAnalyser();
+    analyser.smoothingTimeConstant = 0.7;
+    analyser.fftSize = 1024;
+	  ctx = $("#vis")[0].getContext("2d");
+	  source = context.createMediaElementSource(audioElem);
+	  source.connect(analyser);
+	  analyser.connect(context.destination);
+    // init sizes
+    bars = 40;
+    bins = Math.floor(512 / bars);
+    barWidth = canvas.width / bars;
+    colorText = "rgba(155, 155, 155,";
+	  frameLooper();
+};

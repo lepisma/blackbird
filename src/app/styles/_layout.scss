@@ -176,6 +176,18 @@
     box-shadow: 0px 0px 10px;
     display: inline-block;
 
+    .fa-stack {
+        .fa-stack-2x {
+            color: transparent;
+        }
+        .fa-stack-1x {
+            color: $accent;
+            &.disabled {
+                color: rgba(255, 255, 255, 0.2);
+            }
+        }
+    }
+
     #command-line {
         padding: 5px;
         float: left;
@@ -188,6 +200,7 @@
             font-family: "Hack";
             color: white;
             width: inherit;
+            font-size: 11px;
         }
     }
 

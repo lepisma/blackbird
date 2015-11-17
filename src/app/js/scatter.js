@@ -6,7 +6,7 @@ var blackbird = blackbird || {};
 var width = $("#scatter").width(),
     height = $("#scatter").height();
 
-var data = d3.range(10000).map(function() {
+var data = d3.range(0).map(function() {
     return [
         Math.random(),
         Math.random()

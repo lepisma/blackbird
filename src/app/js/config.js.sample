@@ -1,0 +1,12 @@
+// Configurations
+// --------------
+
+var blackbird = blackbird || {};
+
+blackbird.db = "";
+blackbird.lastfm = {
+    user: "",
+    passhash: "",
+    API_KEY: "",
+    SECRET: ""
+};

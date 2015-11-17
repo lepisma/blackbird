@@ -9,7 +9,9 @@ blackbird.ipc = require("ipc");
 blackbird.ipc.on("ping", function(arg) {
     switch (arg) {
     case "play-pause":
-        blackbird.player.pause();
+        blackbird.player.pause(function(playState) {
+            blackbird.updatePlayPause(playState);
+        });
         break;
     case "next":
         blackbird.player.next();
