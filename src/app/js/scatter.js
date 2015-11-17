@@ -3,24 +3,23 @@
 
 var blackbird = blackbird || {};
 
-blackbird.scatterStates = {
+var scatterStates = {
     current: -1,
     hover: -1
-};
-
-var width,
-    height,
-    xValues,
-    yValues,
+},
+    canvasWidth,
+    canvasHeight,
     zoom,
-    x,
-    y,
+    xScale,
+    yScale,
     canvas;
 
 blackbird.plotScatter = function(currentId, redraw) {
 
+    var data = blackbird.player.coords;
+
     if (currentId != -1) {
-        blackbird.scatterStates.current = currentId;
+        scatterStates.current = currentId;
     }
 
     if (redraw) {
@@ -28,31 +27,35 @@ blackbird.plotScatter = function(currentId, redraw) {
         return;
     }
 
-    width = $("#scatter").width(),
-    height = $("#scatter").height();
+    canvasWidth = $("#scatter").width(),
+    canvasHeight = $("#scatter").height();
 
     zoom = d3.behavior.zoom();
 
-    xValues = blackbird.coords.map(function(d) {
-        return d[1];
-    });
-    yValues = blackbird.coords.map(function(d) {
-        return d[2];
-    });
+    xScale = d3.scale.linear()
+        .domain([
+            Math.min.apply(null, data.map(function(d) {
+                return d[1];
+            })),
+            Math.max.apply(null, data.map(function(d) {
+                return d[1];
+            }))])
+        .range([0, canvasWidth]);
 
-    // Hard coding scale to test things
-    x = d3.scale.linear()
-        .domain([Math.min.apply(null, xValues), Math.max.apply(null, xValues)])
-        .range([0, width]);
-
-    y = d3.scale.linear()
-        .domain([Math.min.apply(null, yValues), Math.max.apply(null, yValues)])
-        .range([height, 0]);
+    yScale = d3.scale.linear()
+        .domain([
+            Math.min.apply(null, data.map(function(d) {
+                return d[2];
+            })),
+            Math.max.apply(null, data.map(function(d) {
+                return d[2];
+            }))])
+        .range([canvasHeight, 0]);
 
     canvas = d3.select("#scatter-canvas")
-        .attr("width", width)
-        .attr("height", height)
-        .call(zoom.x(x).y(y).scaleExtent([1, 10]).on("zoom", zoomed))
+        .attr("width", canvasWidth)
+        .attr("height", canvasHeight)
+        .call(zoom.x(xScale).y(yScale).scaleExtent([1, 10]).on("zoom", zoomed))
         .node().getContext("2d");
 
     function zoomed() {
@@ -64,14 +67,14 @@ blackbird.plotScatter = function(currentId, redraw) {
     });
 
     function resizeCanvas() {
-        height = $("#scatter").height();
-        width = $("#scatter").width();
+        canvasHeight = $("#scatter").height();
+        canvasWidth = $("#scatter").width();
 
-        $("#scatter-canvas")[0].height = height;
-        $("#scatter-canvas")[0].width = width;
+        $("#scatter-canvas")[0].height = canvasHeight;
+        $("#scatter-canvas")[0].width = canvasWidth;
 
-        x.range([0, width]);
-        y.range([height, 0]);
+        xScale.range([0, canvasWidth]);
+        yScale.range([canvasHeight, 0]);
 
         draw();
     }
@@ -79,22 +82,24 @@ blackbird.plotScatter = function(currentId, redraw) {
     // Actual canvas drawing
     function draw() {
 
-        canvas.clearRect(0, 0, width, height);
+        data = blackbird.player.coords;
+
+        canvas.clearRect(0, 0, canvasWidth, canvasHeight);
 
         canvas.strokeStyle = "rgba(255, 255, 255, 0.07)";
         canvas.lineWidth = 1;
 
         for (var i = 0; i < 10; i++) {
             canvas.beginPath();
-            canvas.moveTo(0, i * height / 10);
-            canvas.lineTo(width, i * height / 10);
+            canvas.moveTo(0, i * canvasHeight / 10);
+            canvas.lineTo(canvasWidth, i * canvasHeight / 10);
             canvas.stroke();
         }
 
         for (i = 0; i < 20; i++) {
             canvas.beginPath();
-            canvas.moveTo(i * width / 20, 0);
-            canvas.lineTo(i * width / 20, height);
+            canvas.moveTo(i * canvasWidth / 20, 0);
+            canvas.lineTo(i * canvasWidth / 20, canvasHeight);
             canvas.stroke();
         }
 
@@ -102,11 +107,11 @@ blackbird.plotScatter = function(currentId, redraw) {
         var d, cx, cy;
         // Plot non active members
         canvas.beginPath();
-        for (i = 0; i < blackbird.coords.length; i++) {
-            d = blackbird.coords[i];
+        for (i = 0; i < data.length; i++) {
+            d = data[i];
             if (!d[0]) {
-                cx = x(d[1]);
-                cy = y(d[2]);
+                cx = xScale(d[1]);
+                cy = yScale(d[2]);
                 canvas.moveTo(cx, cy);
                 canvas.arc(cx, cy, 1, 0, 2 * Math.PI);
             }
@@ -116,11 +121,11 @@ blackbird.plotScatter = function(currentId, redraw) {
 
         // Plot active members
         canvas.beginPath();
-        for (i = 0; i < blackbird.coords.length; i++) {
-            d = blackbird.coords[i];
+        for (i = 0; i < data.length; i++) {
+            d = data[i];
             if (d[0]) {
-                cx = x(d[1]);
-                cy = y(d[2]);
+                cx = xScale(d[1]);
+                cy = yScale(d[2]);
                 canvas.moveTo(cx, cy);
                 canvas.arc(cx, cy, 1.5, 0, 2 * Math.PI);
             }
@@ -130,9 +135,9 @@ blackbird.plotScatter = function(currentId, redraw) {
 
         // Currently playing track
         canvas.beginPath();
-        d = blackbird.coords[blackbird.scatterStates.current];
-        cx = x(d[1]);
-        cy = y(d[2]);
+        d = data[scatterStates.current];
+        cx = xScale(d[1]);
+        cy = yScale(d[2]);
         canvas.arc(cx, cy, 5.0, 0, 2 * Math.PI);
         canvas.lineWidth = 2;
         canvas.strokeStyle = "rgba(41, 128, 185, 1.0)";
@@ -144,11 +149,11 @@ blackbird.plotScatter = function(currentId, redraw) {
         canvas.stroke();
 
         // Hover
-        if (blackbird.scatterStates.hover != -1) {
+        if (scatterStates.hover != -1) {
             canvas.beginPath();
-            d = blackbird.coords[blackbird.scatterStates.hover];
-            cx = x(d[1]);
-            cy = y(d[2]);
+            d = data[scatterStates.hover];
+            cx = xScale(d[1]);
+            cy = yScale(d[2]);
             canvas.arc(cx, cy, 5.0, 0, 2 * Math.PI);
             canvas.lineWidth = 4;
             canvas.strokeStyle = "rgba(41, 128, 185, 1.0)";
@@ -160,22 +165,22 @@ blackbird.plotScatter = function(currentId, redraw) {
     canvas.canvas.addEventListener("mousemove", function(evt) {
         var mousePos = getMousePos(canvas.canvas, evt);
         // Find coordinates in coords space
-        mousePos.x = x.invert(mousePos.x);
-        mousePos.y = y.invert(mousePos.y);
+        mousePos.x = xScale.invert(mousePos.x);
+        mousePos.y = yScale.invert(mousePos.y);
 
-        blackbird.scatterStates.hover = getNearestPoint(mousePos);
+        scatterStates.hover = getNearestPoint(mousePos);
         draw();
 
-        blackbird.player.db.get("SELECT * FROM SONGS WHERE id = ?", getNearestPoint(mousePos) + 1, function(err, row) {
-            blackbird.hoverInfo(row.title, row.artist);
+        blackbird.player.getData(getNearestPoint(mousePos) + 1, function(song) {
+            blackbird.hoverInfo(song.title, song.artist);
         });
 
     }, false);
 
     // On Click
     canvas.canvas.addEventListener("click", function(evt) {
-        if (blackbird.scatterStates.hover != 1) {
-            blackbird.player.singlePlay(blackbird.scatterStates.hover);
+        if (scatterStates.hover != 1) {
+            blackbird.player.singlePlay(scatterStates.hover);
         }
     }, false);
 
@@ -192,8 +197,8 @@ blackbird.plotScatter = function(currentId, redraw) {
             minVal,
             currentVal;
 
-        for (i = 0; i < blackbird.coords.length; i++) {
-            if (blackbird.coords[i][0]) {
+        for (i = 0; i < data.length; i++) {
+            if (data[i][0]) {
                 if (minIdx == -1) {
                     minIdx = i;
                     minVal = distance(minIdx);
@@ -210,7 +215,7 @@ blackbird.plotScatter = function(currentId, redraw) {
 
         // Give distance from the point
         function distance(idx) {
-            return Math.abs(blackbird.coords[idx][1] - point.x) + Math.abs(blackbird.coords[idx][2] - point.y);
+            return Math.abs(data[idx][1] - point.x) + Math.abs(data[idx][2] - point.y);
         };
 
         return minIdx;

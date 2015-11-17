@@ -17,7 +17,7 @@ var shuffle = function(array) {
         randomIdx ;
 
     while (0 !== idx) {
-        // Pick a remaining element...
+        // Pick a remaining element
         randomIdx = Math.floor(Math.random() * idx);
         idx -= 1;
         temporaryValue = array[idx];
@@ -32,9 +32,6 @@ blackbird.Player = function(dbName, callback) {
     that.db = new blackbird.sqlite.Database(dbName);
 
     // Load data from base
-    // that.feature = feats
-    // that.coordinates = 2d feats
-    // Handle without feature songs too
 
     that.db.get("SELECT count(*) as c FROM SONGS", function(err, row) {
         // Generate state/mode etc.
@@ -84,8 +81,9 @@ blackbird.Player = function(dbName, callback) {
 blackbird.Player.prototype.play = function() {
     var that = this;
 
-    that.getData(that.sequence[that.currentIndex] + 1, function() {
+    that.getData(that.sequence[that.currentIndex] + 1, function(data) {
         // Update UI
+        that.currentData = data;
         blackbird.updateSeek(0);
         blackbird.updatePlayPause(true);
         that.genCoords(function() {
@@ -205,12 +203,12 @@ blackbird.Player.prototype.played = function() {
     }
 };
 
+// Set data for given id
 blackbird.Player.prototype.getData = function(songId, callback) {
     // Return data from global song id
     var that = this;
     that.db.get("SELECT title, artist, album, path from SONGS WHERE id = ?", songId, function(err, row) {
-        that.currentData = row;
-        callback();
+        callback(row);
     });
 };
 
@@ -358,13 +356,13 @@ blackbird.Player.prototype.genCoords = function(callback) {
     var that = this;
 
     that.db.all("SELECT id, x, y FROM COORDS", function(err, rows) {
-        blackbird.coords = [];
+        that.coords = [];
         rows.forEach(function(row) {
             var shade = false;
             if (blackbird.player.sequence.indexOf(row.id) > -1) {
                 shade = true;
             }
-            blackbird.coords.push([shade, row.x, row.y]);
+            that.coords.push([shade, row.x, row.y]);
         });
         callback();
     });
