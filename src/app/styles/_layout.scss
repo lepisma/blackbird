@@ -211,6 +211,13 @@
         float: right;
         width: 25%;
         height: inherit;
+
+        #mode {
+            font-family: "Hack";
+            color: gray;
+            font-size: 16px;
+            font-variant: small-caps;
+        }
     }
 }
 

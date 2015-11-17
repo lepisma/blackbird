@@ -74,5 +74,5 @@ blackbird.setSleep = function(state) {
 
 // Set mode
 blackbird.setMode = function(mode) {
-    ;
+    $("#mode").text(mode);
 };
