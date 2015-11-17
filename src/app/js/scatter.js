@@ -3,20 +3,33 @@
 
 var blackbird = blackbird || {};
 
-blackbird.plotScatter = function(data) {
+blackbird.plotScatter = function(currentId) {
+
+    if (currentId != -1) {
+        blackbird.scatterStates = {
+            current: currentId
+        };
+    }
 
     var width = $("#scatter").width(),
     height = $("#scatter").height();
 
     var zoom = d3.behavior.zoom();
 
+    var xValues = blackbird.coords.map(function(d) {
+        return d[1];
+    });
+    var yValues = blackbird.coords.map(function(d) {
+        return d[2];
+    });
+
     // Hard coding scale to test things
     var x = d3.scale.linear()
-        .domain([-15, 15])
+        .domain([Math.min.apply(null, xValues), Math.max.apply(null, xValues)])
         .range([0, width]);
 
     var y = d3.scale.linear()
-        .domain([-15, 15])
+        .domain([Math.min.apply(null, yValues), Math.max.apply(null, yValues)])
         .range([height, 0]);
 
     var canvas = d3.select("#scatter-canvas")
@@ -43,24 +56,57 @@ blackbird.plotScatter = function(data) {
             canvas.stroke();
         }
 
-        for (var i = 0; i < 20; i++) {
+        for (i = 0; i < 20; i++) {
             canvas.beginPath();
             canvas.moveTo(i * width / 20, 0);
             canvas.lineTo(i * width / 20, height);
             canvas.stroke();
         }
 
-        var i = -1, n = data.length, d, cx, cy;
+        // Plot circles
+        var d, cx, cy;
+        // Plot non active members
         canvas.beginPath();
-        while (++i < n) {
-            d = data[i];
-            cx = x(d.x);
-            cy = y(d.y);
-            canvas.moveTo(cx, cy);
-            canvas.arc(cx, cy, 1.5, 0, 2 * Math.PI);
+        for (i = 0; i < blackbird.coords.length; i++) {
+            d = blackbird.coords[i];
+            if (!d[0]) {
+                cx = x(d[1]);
+                cy = y(d[2]);
+                canvas.moveTo(cx, cy);
+                canvas.arc(cx, cy, 1, 0, 2 * Math.PI);
+            }
         }
-        canvas.fillStyle = "rgba(255, 255, 255, 0.1)";
+        canvas.fillStyle = "rgba(255, 255, 255, 0.05)";
         canvas.fill();
+
+        // Plot active members
+        canvas.beginPath();
+        for (i = 0; i < blackbird.coords.length; i++) {
+            d = blackbird.coords[i];
+            if (d[0]) {
+                cx = x(d[1]);
+                cy = y(d[2]);
+                canvas.moveTo(cx, cy);
+                canvas.arc(cx, cy, 1.5, 0, 2 * Math.PI);
+            }
+        }
+        canvas.fillStyle = "rgba(149, 165, 166, 0.6)";
+        canvas.fill();
+
+
+        canvas.beginPath();
+        d = blackbird.coords[blackbird.scatterStates.current];
+        cx = x(d[1]);
+        cy = y(d[2]);
+        canvas.arc(cx, cy, 5.0, 0, 2 * Math.PI);
+        canvas.lineWidth = 2;
+        canvas.strokeStyle = "rgba(41, 128, 185, 1.0)";
+        canvas.stroke();
+        canvas.beginPath();
+        canvas.arc(cx, cy, 15.0, 0, 2 * Math.PI);
+        canvas.lineWidth = 1;
+        canvas.strokeStyle = "rgba(41, 128, 185, 1.0)";
+        canvas.stroke();
     }
 
     $(window).resize(function() {
@@ -68,8 +114,6 @@ blackbird.plotScatter = function(data) {
     });
 
     function resizeCanvas() {
-        zoom.scale(1);
-        zoom.translate([0, 0]);
         height = $("#scatter").height();
         width = $("#scatter").width();
 

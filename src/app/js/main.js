@@ -21,11 +21,6 @@ $(document).ready(function() {
         // Create visualizer
         blackbird.initVisualizer(blackbird.player.audioElem);
 
-        // Generate scatter
-        blackbird.player.coords(function(rows) {
-            blackbird.plotScatter(rows);
-        });
-
         // First play
         blackbird.player.next();
     });
@@ -65,6 +60,9 @@ $(document).ready(function() {
                 else {
                     if (data[0] == "m") {
                         blackbird.setMode(data[1]);
+                        blackbird.player.genCoords(function() {
+                            blackbird.plotScatter(-1);
+                        });
                     }
                     else if (data[0] == "r") {
                         blackbird.setRepeat(data[1]);

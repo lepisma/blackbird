@@ -88,6 +88,9 @@ blackbird.Player.prototype.play = function() {
         // Update UI
         blackbird.updateSeek(0);
         blackbird.updatePlayPause(true);
+        that.genCoords(function() {
+            blackbird.plotScatter(that.sequence[that.currentIndex]);
+        });
         // TODO: last fm now playing
         that.scrobbled = false;
 
@@ -343,10 +346,18 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
 };
 
 // Get coordinates for plotting
-blackbird.Player.prototype.coords = function(callback) {
+blackbird.Player.prototype.genCoords = function(callback) {
     var that = this;
 
     that.db.all("SELECT id, x, y FROM COORDS", function(err, rows) {
-        callback(rows);
+        blackbird.coords = [];
+        rows.forEach(function(row) {
+            var shade = false;
+            if (blackbird.player.sequence.indexOf(row.id) > -1) {
+                shade = true;
+            }
+            blackbird.coords.push([shade, row.x, row.y]);
+        });
+        callback();
     });
 };
