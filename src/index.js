@@ -4,10 +4,13 @@ var app = require("app");
 var BrowserWindow = require("browser-window");
 var shortcuts = require("global-shortcut");
 var path = require("path");
+var tray = require("tray");
+var menu = require("menu");
 
 require("crash-reporter").start();
 
 var mainWindow = null;
+var appIcon = null;
 
 app.on("ready", function() {
     mainWindow = new BrowserWindow({
@@ -16,6 +19,27 @@ app.on("ready", function() {
         frame: false,
         resizable: true,
         icon: path.join(__dirname, "/icons/icon32.png")
+    });
+
+    // Tray icon
+    appIcon = new tray(path.join(__dirname, "/icons/icon16.png"));
+    appIcon.setToolTip("blackbird");
+    var trayMenu = menu.buildFromTemplate([
+        {
+            label: "Exit",
+            click: function() {
+                app.quit();
+            }
+        }
+    ]);
+    appIcon.setContextMenu(trayMenu);
+    appIcon.on("clicked", function() {
+        if (mainWindow.isVisible()) {
+            mainWindow.hide();
+        }
+        else {
+            mainWindow.show();
+        }
     });
 
     // and load the index.html of the app.
@@ -37,31 +61,10 @@ app.on("ready", function() {
         mainWindow.webContents.send("ping", "next");
     });
 
-    // Windows thumbar
-    // mainWindow.setThumbarButtons([
-    //     {
-    //         tooltip: "prev",
-    //         icon: path.join(__dirname, "/icons/iconPrev.png"),
-    //         click: function() {
-    //             mainWindow.webContents.send("ping", "prev");
-    //         }
-    //     },
-    //     {
-    //         tooltip: "play/pause",
-    //         icon: path.join(__dirname, "/icons/iconPlay.png"),
-    //         click: function() {
-    //             mainWindow.webContents.send("ping", "play-pause");
-    //         }
-    //     },
-    //     {
-    //         tooltip: "next",
-    //         icon: path.join(__dirname, "/icons/iconNext.png"),
-    //         click: function() {
-    //             mainWindow.webContents.send("ping", "next");
-    //         }
-
-    //     }
-    // ]);
+    // Hide on minimize
+    mainWindow.on("minimize", function() {
+        mainWindow.hide();
+    });
 
     // Emitted when the window is closed.
     mainWindow.on("closed", function() {
