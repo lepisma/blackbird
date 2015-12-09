@@ -12,7 +12,15 @@ var scatterStates = {
     zoom,
     xScale,
     yScale,
-    canvas;
+    canvas,
+    ripple;
+
+blackbird.resetRipple = function() {
+        ripple = {
+            done: false,
+            radii: [1, 1, 1]
+        };
+};
 
 blackbird.plotScatter = function(currentId, redraw) {
 
@@ -27,6 +35,7 @@ blackbird.plotScatter = function(currentId, redraw) {
         return;
     }
 
+    blackbird.resetRipple();
     canvasWidth = $("#scatter").width(),
     canvasHeight = $("#scatter").height();
 
@@ -89,6 +98,7 @@ blackbird.plotScatter = function(currentId, redraw) {
         canvas.strokeStyle = "rgba(255, 255, 255, 0.07)";
         canvas.lineWidth = 1;
 
+        // Draw horizontal lines
         for (var i = 0; i < 10; i++) {
             canvas.beginPath();
             canvas.moveTo(0, i * canvasHeight / 10);
@@ -96,6 +106,7 @@ blackbird.plotScatter = function(currentId, redraw) {
             canvas.stroke();
         }
 
+        // Draw vertical lines
         for (i = 0; i < 20; i++) {
             canvas.beginPath();
             canvas.moveTo(i * canvasWidth / 20, 0);
@@ -159,6 +170,21 @@ blackbird.plotScatter = function(currentId, redraw) {
             canvas.strokeStyle = "rgba(41, 128, 185, 1.0)";
             canvas.stroke();
         }
+
+        // Draw ripples
+        if (!ripple.done) {
+            // If ripples are not dead yet
+            d = data[scatterStates.current];
+            cx = xScale(d[1]);
+            cy = yScale(d[2]);
+            ripple.radii.forEach(function(radius) {
+                canvas.beginPath();
+                canvas.arc(cx, cy, radius, 0, 2 * Math.PI);
+                canvas.lineWidth = 2;
+                canvas.strokeStyle = "rgba(41, 128, 185, 1.0)";
+                canvas.stroke();
+            });
+        }
     }
 
     // Bind mouse events
@@ -221,6 +247,24 @@ blackbird.plotScatter = function(currentId, redraw) {
         return minIdx;
     };
 
+    // Ripple animation
+    // Update all the ripples
+    var rippleAnimate = function() {
+        if (!ripple.done) {
+            // If ripple is active
+            for (var i = 0; i < ripple.radii.length; i++) {
+                ripple.radii[i] *= (1.1 + 0.1 * i);
+                if (ripple.radii[0] > 400) {
+                    ripple.done = true;
+                }
+            }
+            draw();
+        }
+        // Update on each frame
+        window.requestAnimationFrame(rippleAnimate);
+    };
+
     // Draw
     draw();
+    rippleAnimate();
 };

@@ -6,7 +6,6 @@ var blackbird = blackbird || {};
 // Things for cover art
 blackbird.fs = require("fs");
 blackbird.mm = require("musicmetadata");
-blackbird.lastfm = require("simple-lastfm");
 blackbird.sqlite = require("sqlite3");
 
 // Utility functions
@@ -88,6 +87,7 @@ blackbird.Player.prototype.play = function() {
         blackbird.updatePlayPause(true);
         that.genCoords(function() {
             blackbird.plotScatter(that.sequence[that.currentIndex], true);
+            blackbird.resetRipple();
         });
         // TODO: last fm now playing
         that.scrobbled = false;
