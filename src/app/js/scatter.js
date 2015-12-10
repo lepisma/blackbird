@@ -197,7 +197,7 @@ blackbird.plotScatter = function(currentId, redraw) {
         scatterStates.hover = getNearestPoint(mousePos);
         draw();
 
-        blackbird.player.getData(getNearestPoint(mousePos) + 1, function(song) {
+        blackbird.player.getData(getNearestPoint(mousePos), function(song) {
             blackbird.hoverInfo(song.title, song.artist);
         });
 

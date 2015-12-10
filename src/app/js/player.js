@@ -80,7 +80,7 @@ blackbird.Player = function(dbName, callback) {
 blackbird.Player.prototype.play = function() {
     var that = this;
 
-    that.getData(that.sequence[that.currentIndex] + 1, function(data) {
+    that.getData(that.sequence[that.currentIndex], function(data) {
         // Update UI
         that.currentData = data;
         blackbird.updateSeek(0);
@@ -240,7 +240,7 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
         that.artistSeq = [];
         that.db.all("SELECT id from SONGS WHERE artist = ?", that.currentData.artist, function(err, rows) {
             rows.forEach(function(row) {
-                that.artistSeq.push(row.id - 1);
+                that.artistSeq.push(row.id);
             });
             that.seqCount = that.artistSeq.length;
             that.artistSeq = shuffle(that.artistSeq);
@@ -260,7 +260,7 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
         that.albumSeq = [];
         that.db.all("SELECT id from SONGS WHERE album = ?", that.currentData.album, function(err, rows) {
             rows.forEach(function(row) {
-                that.albumSeq.push(row.id - 1);
+                that.albumSeq.push(row.id);
             });
             that.seqCount = that.albumSeq.length;
             that.albumSeq = shuffle(that.albumSeq);
@@ -282,7 +282,7 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
             rows.forEach(function(row) {
                 var text = row.artist + row.album + row.title;
                 if (text.toLowerCase().indexOf(args) > -1) {
-                    that.searchSeq.push(row.id - 1);
+                    that.searchSeq.push(row.id);
                 }
             });
             if (that.searchSeq.length == 0) {
