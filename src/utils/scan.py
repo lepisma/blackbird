@@ -26,7 +26,7 @@ except OSError:
 conn = sqlite3.connect(db_file)
 cur = conn.cursor()
 
-to_scan = sys.argv[1]
+to_scan = unicode(sys.argv[1])
 songs = []
 
 for root, _, files in os.walk(to_scan):
@@ -44,7 +44,11 @@ cur.execute(cmd)
 songs_data = []
 
 for idx, song in enumerate(songs):
-    audio_data = eyed3.load(song)
+    try:
+        audio_data = eyed3.load(song)
+    except:
+        print song
+        sys.exit(1)
     songs_data.append((idx,
                        audio_data.tag.title,
                        audio_data.tag.artist,

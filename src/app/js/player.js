@@ -281,8 +281,10 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
         that.db.all("SELECT id, artist, album, title FROM songs", function(err, rows) {
             rows.forEach(function(row) {
                 var text = row.artist + row.album + row.title;
-                if (text.toLowerCase().indexOf(args) > -1) {
-                    that.searchSeq.push(row.id);
+                if (typeof(text) == "string") {
+                    if (text.toLowerCase().indexOf(args) > -1) {
+                        that.searchSeq.push(row.id);
+                    }
                 }
             });
             if (that.searchSeq.length == 0) {
