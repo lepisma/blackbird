@@ -5,7 +5,8 @@ var blackbird = blackbird || {};
 
 var scatterStates = {
     current: -1,
-    hover: -1
+    hover: -1,
+    similar: -1
 },
     canvasWidth,
     canvasHeight,
@@ -184,6 +185,24 @@ blackbird.plotScatter = function(currentId, redraw) {
                 canvas.strokeStyle = "rgba(41, 128, 185, 1.0)";
                 canvas.stroke();
             });
+        }
+
+        // Draw similar zone
+        if (scatterStates.similar != -1) {
+            d = data[scatterStates.similar];
+            cx = xScale(d[1]);
+            cy = yScale(d[2]);
+            var n_dash = 12;
+            var sector_ang = 2 * Math.PI / n_dash;
+            for (i = 0; i < n_dash; i++) {
+                if (i % 2 == 0) {
+                    canvas.beginPath();
+                    canvas.linewidth = 1;
+                    canvas.strokeStyle = "#3498DB";
+                    canvas.arc(cx, cy, 20, i * sector_ang, (i + 1) * sector_ang);
+                    canvas.stroke();
+                }
+            }
         }
     }
 

@@ -80,5 +80,11 @@ blackbird.setSleep = function(state) {
 
 // Set mode
 blackbird.setMode = function(mode) {
-    $("#mode").text(mode);
+    if (mode != "similar") {
+        $("#mode").text(mode);
+        scatterStates.similar = -1;
+    }
+    else {
+        scatterStates.similar = blackbird.player.sequence[blackbird.player.currentIndex];
+    }
 };

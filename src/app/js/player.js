@@ -26,6 +26,25 @@ var shuffle = function(array) {
     return array;
 };
 
+var argsort = function(array) {
+    // Sort array in increasing order (in place) and return indices
+    for (var i = 0; i < array.length; i++) {
+        array[i] = [i, array[i]];
+    }
+
+    array.sort(function(a, b) {
+        return a[1] - b[1];
+    });
+
+    var sortedIndices = [];
+    for (i = 0; i < array.length; i++) {
+        sortedIndices.push(array[i][0]);
+        array[i] = array[i][1];
+    }
+
+    return sortedIndices;
+};
+
 blackbird.Player = function(dbName, callback) {
     var that = this;
     that.db = new blackbird.sqlite.Database(dbName);
@@ -47,7 +66,6 @@ blackbird.Player = function(dbName, callback) {
         that.searchSeq = [];
         that.artistSeq = [];
         that.albumSeq = [];
-        that.similarSeq = [];
 
         that.totalCount = row.c;
         for (var i = 0; i < that.totalCount; i++) {
@@ -303,13 +321,31 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
     }
     // Handle similar
     else if (["similar", "sim"].indexOf(action) > -1) {
-        callback("nf");
-        // if (that.savedState.saved == false) {
-        //     that.savedState.value = that.currentIndex;
-        //     that.savedState.saved = true;
-        // }
+        if (that.savedState.saved == false) {
+            that.savedState.value = that.currentIndex;
+            that.savedState.saved = true;
+        }
 
-        // callback(["m", "similar"]);
+        var distances = [];
+        var anchorPoint = that.coords[that.sequence[that.currentIndex]],
+            currentPoint;
+
+        for (var i = 0; i < that.sequence.length; i++) {
+            currentPoint = that.coords[that.sequence[i]];
+            distances.push(Math.abs(anchorPoint[1] - currentPoint[1]) +
+                           Math.abs(anchorPoint[2] - currentPoint[2]));
+        }
+
+        var similarIndices = argsort(distances);
+        var similarSeq = [];
+
+        for (i = 0; i < similarIndices.length; i ++) {
+            similarSeq.push(that.sequence[similarIndices[i]]);
+        }
+        that.sequence = similarSeq;
+        that.currentIndex = 0;
+
+        callback(["m", "similar"]);
     }
     // Handle free
     else if (["free", "f"].indexOf(action) > -1) {
