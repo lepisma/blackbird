@@ -32,7 +32,7 @@ blackbird.Player = function(dbName, callback) {
 
     // Load data from base
 
-    that.db.get("SELECT count(*) as c FROM SONGS", function(err, row) {
+    that.db.get("SELECT count(*) as c FROM songs", function(err, row) {
         // Generate state/mode etc.
         that.repeat = false;
         that.sleep = null;
@@ -207,7 +207,7 @@ blackbird.Player.prototype.played = function() {
 blackbird.Player.prototype.getData = function(songId, callback) {
     // Return data from global song id
     var that = this;
-    that.db.get("SELECT title, artist, album, path from SONGS WHERE id = ?", songId, function(err, row) {
+    that.db.get("SELECT title, artist, album, path FROM songs WHERE id = ?", songId, function(err, row) {
         callback(row);
     });
 };
@@ -238,7 +238,7 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
         }
 
         that.artistSeq = [];
-        that.db.all("SELECT id from SONGS WHERE artist = ?", that.currentData.artist, function(err, rows) {
+        that.db.all("SELECT id FROM songs WHERE artist = ?", that.currentData.artist, function(err, rows) {
             rows.forEach(function(row) {
                 that.artistSeq.push(row.id);
             });
@@ -258,7 +258,7 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
         }
 
         that.albumSeq = [];
-        that.db.all("SELECT id from SONGS WHERE album = ?", that.currentData.album, function(err, rows) {
+        that.db.all("SELECT id FROM songs WHERE album = ?", that.currentData.album, function(err, rows) {
             rows.forEach(function(row) {
                 that.albumSeq.push(row.id);
             });
@@ -278,7 +278,7 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
         }
 
         that.searchSeq = [];
-        that.db.all("SELECT id, artist, album, title FROM SONGS", function(err, rows) {
+        that.db.all("SELECT id, artist, album, title FROM songs", function(err, rows) {
             rows.forEach(function(row) {
                 var text = row.artist + row.album + row.title;
                 if (text.toLowerCase().indexOf(args) > -1) {
@@ -355,7 +355,7 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
 blackbird.Player.prototype.genCoords = function(callback) {
     var that = this;
 
-    that.db.all("SELECT id, x, y FROM COORDS", function(err, rows) {
+    that.db.all("SELECT id, x, y FROM songs", function(err, rows) {
         that.coords = [];
         rows.forEach(function(row) {
             var shade = false;
