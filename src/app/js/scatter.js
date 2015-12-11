@@ -192,17 +192,10 @@ blackbird.plotScatter = function(currentId, redraw) {
             d = data[scatterStates.similar];
             cx = xScale(d[1]);
             cy = yScale(d[2]);
-            var n_dash = 12;
-            var sector_ang = 2 * Math.PI / n_dash;
-            for (i = 0; i < n_dash; i++) {
-                if (i % 2 == 0) {
-                    canvas.beginPath();
-                    canvas.linewidth = 1;
-                    canvas.strokeStyle = "#3498DB";
-                    canvas.arc(cx, cy, 20, i * sector_ang, (i + 1) * sector_ang);
-                    canvas.stroke();
-                }
-            }
+            canvas.beginPath();
+            canvas.arc(cx, cy, 50, 0, 2 * Math.PI);
+            canvas.fillStyle = "rgba(41, 128, 185, 0.2)";
+            canvas.fill();
         }
     }
 
