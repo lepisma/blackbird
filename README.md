@@ -1,17 +1,27 @@
 # blackbird
 
-Blackbird was started with the idea to learn listening clusters using acoustic attributes and create a seed based player piggybacking on *sequences*.
+<kbd>under development</kbd>
 
-**under development**
+Music player
 
 ![screen](screen.gif)
 
+---
+
 #### Implemented features
 
-- Basic UI
-- Metadata filters (Usable as general purpose player)
+##### Basic Interface
 
-#### To implement
+- Filters based on:
+  - Artist
+  - Album
+  - Search term
+- Similarity sorting
+- Repeat
+- Sleep After
+  
+#### Todos
 
-- Better acoustic features
-- Learn `lastfm` playing history to create sequences.
+- Learn vector representation of songs.
+  - Use `lastfm` listen sessions (listens in one go) to get joint preference information for songs.
+  - Learn a siamese LSTM network (waiting for a good GPU) on song spectrum to generate vectors complying with preferences. Hopefully, this should capture both, my personal biases and acoustic features.
