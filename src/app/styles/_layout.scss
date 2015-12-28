@@ -164,6 +164,21 @@
     top: 120px;
     bottom: 40px;
     width: 100%;
+
+    #hover-info {
+        position: absolute;
+        margin-left: 10px;
+        margin-top: 10px;
+        font-variant: small-caps;
+        font-family: "Hack";
+        font-size: 15px;
+        color: rgba(255, 255, 255, 0.3);
+        pointer-events:none;
+
+        #hover-artist {
+            font-size: 12px;
+        }
+    }
 }
 
 // Status and command
@@ -185,22 +200,6 @@
             &.disabled {
                 color: rgba(255, 255, 255, 0.2);
             }
-        }
-    }
-
-    #hover-info {
-        position: fixed;
-        right: 20px;
-        text-align: right;
-        bottom: 60px;
-        font-variant: small-caps;
-        font-family: "Hack";
-        font-size: 15px;
-        color: rgba(255, 255, 255, 0.3);
-        pointer-events:none;
-
-        #hover-artist {
-            font-size: 12px;
         }
     }
 

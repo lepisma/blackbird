@@ -202,15 +202,16 @@ blackbird.plotScatter = function(currentId, redraw) {
     // Bind mouse events
     canvas.canvas.addEventListener("mousemove", function(evt) {
         var mousePos = getMousePos(canvas.canvas, evt);
+        var posCoord = {};
         // Find coordinates in coords space
-        mousePos.x = xScale.invert(mousePos.x);
-        mousePos.y = yScale.invert(mousePos.y);
+        posCoord.x = xScale.invert(mousePos.x);
+        posCoord.y = yScale.invert(mousePos.y);
 
-        scatterStates.hover = getNearestPoint(mousePos);
+        scatterStates.hover = getNearestPoint(posCoord);
         draw();
 
-        blackbird.player.getData(getNearestPoint(mousePos), function(song) {
-            blackbird.hoverInfo(song.title, song.artist);
+        blackbird.player.getData(scatterStates.hover, function(song) {
+            blackbird.hoverInfo(song.title, song.artist, mousePos);
         });
 
     }, false);

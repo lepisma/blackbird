@@ -11,7 +11,11 @@ blackbird.updateInfo = function(title, artist, coverData) {
 };
 
 // Update hover update
-blackbird.hoverInfo  = function(title, artist) {
+blackbird.hoverInfo  = function(title, artist, pos) {
+    $("#hover-info").css({
+        "top": pos.y,
+        "left": pos.x
+    });
     $("#hover-track").text(title.toLowerCase());
     $("#hover-artist").text(artist.toLowerCase());
 };
