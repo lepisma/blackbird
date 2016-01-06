@@ -7,6 +7,7 @@ var blackbird = blackbird || {};
 blackbird.fs = require("fs");
 blackbird.mm = require("musicmetadata");
 blackbird.sqlite = require("sqlite3");
+blackbird.last = require("simple-lastfm");
 
 // Utility functions
 var shuffle = function(array) {
@@ -48,6 +49,21 @@ var argsort = function(array) {
 blackbird.Player = function(dbName, callback) {
     var that = this;
     that.db = new blackbird.sqlite.Database(dbName);
+    // Init lastfm scrobbler
+    that.scrobbler = new blackbird.last({
+        api_key: blackbird.config.lastfm.API_KEY,
+        api_secret: blackbird.config.lastfm.SECRET,
+        username: blackbird.config.lastfm.user,
+        password: blackbird.config.lastfm.password
+    });
+
+    that.scrobbler.getSessionKey(function(data) {
+        console.log("session key: " + data.session_key);
+        if (data.success) {
+            console.log("scrobbler active");
+            that.scrobbler_active = true;
+        }
+    });
 
     // Load data from base
 
@@ -213,6 +229,15 @@ blackbird.Player.prototype.played = function() {
 
         if (currentTime > (Math.min(capTime, halfTime))) {
             // Scrobble current track
+            if (that.scrobbler_active) {
+                that.scrobbler.scrobbleTrack({
+                    artist: that.currentData.artist,
+                    track: that.currentData.title,
+                    callback: function(result) {
+                        console.log("in callback, finished: ", result);
+                    }
+                });
+            }
             that.scrobbled = true;
             if (that.sleep != null) {
                 that.sleep -= 1;
@@ -243,8 +268,23 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
         args = command.join(" ");
     }
 
+    // Handle love
+    if (["love", "l"].indexOf(action) > -1) {
+        if (that.scrobbler_active) {
+            that.scrobbler.loveTrack({
+                artist: that.currentData.artist,
+                track: that.currentData.title,
+                callback: function(result) {
+                    callback(["l", "love"]);
+                }
+            });
+        }
+        else {
+            callback("nf");
+        }
+    }
     // Handle repeat
-    if (["repeat", "r"].indexOf(action) > -1) {
+    else if (["repeat", "r"].indexOf(action) > -1) {
         that.repeat = !that.repeat;
         callback(["r", that.repeat]);
     }
@@ -371,7 +411,6 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
         // Set sleep
         if (isNaN(args)) {
             callback("nf");
-            console.log("dfdf");
         }
         else {
             if (parseInt(args) < 0) {

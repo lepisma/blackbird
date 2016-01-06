@@ -10,7 +10,8 @@
         "musicmetadata": "",
         "electron-prebuilt": "",
         "d3": "",
-        "sqlite3": ""
+        "sqlite3": "",
+        "simple-lastfm": ""
     },
     "scripts": {
         "start": "electron ."

@@ -3,12 +3,14 @@
 
 var blackbird = blackbird || {};
 
-blackbird.config = {
-    db: "";
-    lastfm: {
-        user: "",
-        passhash: "",
-        API_KEY: "",
-        SECRET: ""
-    }
-};
+(function(glob) {
+    glob.config = {
+        db: "./base/data.db",
+        lastfm: {
+            user: "",
+            password: "",
+            API_KEY: "",
+            SECRET: ""
+        }
+    };
+}(blackbird));
