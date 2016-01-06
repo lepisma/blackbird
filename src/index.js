@@ -49,16 +49,24 @@ app.on("ready", function() {
     mainWindow.openDevTools();
 
     // Registed keyboard shortcuts
-    var register_play = shortcuts.register("ctrl+alt+space", function(){
+    var register_play = shortcuts.register("ctrl+alt+space", function() {
         mainWindow.webContents.send("ping", "play-pause");
     });
 
-    var register_prev = shortcuts.register("ctrl+alt+left", function(){
+    var register_prev = shortcuts.register("ctrl+alt+left", function() {
         mainWindow.webContents.send("ping", "prev");
     });
 
-    var register_next = shortcuts.register("ctrl+alt+right", function(){
+    var register_next = shortcuts.register("ctrl+alt+right", function() {
         mainWindow.webContents.send("ping", "next");
+    });
+
+    var register_hide = shortcuts.register("ctrl+alt+down", function() {
+        mainWindow.hide();
+    });
+
+    var register_show = shortcuts.register("ctrl+alt+up", function() {
+        mainWindow.show();
     });
 
     // Hide on minimize
