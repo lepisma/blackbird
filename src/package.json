@@ -11,7 +11,8 @@
         "electron-prebuilt": "",
         "d3": "",
         "sqlite3": "",
-        "simple-lastfm": ""
+        "simple-lastfm": "",
+        "restify": ""
     },
     "scripts": {
         "start": "electron ."

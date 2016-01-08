@@ -7,10 +7,12 @@ window.$ = window.jQuery = require("jquery");
 window.d3 = require("d3");
 var ui = require("./app/js/ui");
 require("jquery-ui");
+var restify = require("restify");
 
 blackbird.config = require("./app/js/config");
 blackbird.Player = require("./app/js/player");
 blackbird.ipc = require("ipc");
+blackbird.api = restify.createServer();
 
 blackbird.player = new blackbird.Player(blackbird.config, function() {
     // Create seek slider
@@ -38,6 +40,34 @@ blackbird.player = new blackbird.Player(blackbird.config, function() {
 
     // First play
     blackbird.player.next();
+
+    // Setup api points
+    blackbird.api.get("/current", function(req, res, next) {
+        res.send(blackbird.player.currentData);
+        next();
+    });
+
+    blackbird.api.get("/next", function(req, res, next) {
+        blackbird.player.next();
+        res.send("ok");
+        next();
+    });
+
+    blackbird.api.get("/previous", function(req, res, next) {
+        blackbird.player.previous();
+        res.send("ok");
+        next();
+    });
+
+    blackbird.api.get("/play", function(req, res, next) {
+        blackbird.player.pause(function(playState) {
+            ui.updatePlayPause(playState);
+        });
+        res.send("ok");
+        next();
+    });
+
+    blackbird.api.listen(blackbird.config.api_port);
 });
 
 // Player control logic
