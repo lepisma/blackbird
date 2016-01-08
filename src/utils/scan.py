@@ -43,9 +43,6 @@ cmd = "CREATE TABLE songs (id INTEGER PRIMARY KEY, title TEXT, artist TEXT, albu
 cur.execute(cmd)
 
 songs_data = []
-# load features
-files = cPickle.load(open("../notebook/features.pkl"))["files"]
-coords = cPickle.load(open("../notebook/tsne.pkl"))[1]
 
 for idx, song in enumerate(songs):
     try:
@@ -56,8 +53,8 @@ for idx, song in enumerate(songs):
                            audio_data.tag.artist,
                            audio_data.tag.album,
                            song,
-                           coords[song_idx][0],
-                           coords[song_idx][1]))
+                           random(),
+                           random()))
     except Exception as e:
         print e
         sys.exit(1)
