@@ -1,72 +1,34 @@
 // Main player
 // -----------
 
-var blackbird = blackbird || {};
+// imports
+var fs = require("fs"),
+    mm = require("musicmetadata"),
+    sqlite = require("sqlite3"),
+    lastfm = require("simple-lastfm"),
+    utils = require("./utils"),
+    ui = require("./ui");
 
-// Things for cover art
-blackbird.fs = require("fs");
-blackbird.mm = require("musicmetadata");
-blackbird.sqlite = require("sqlite3");
-blackbird.last = require("simple-lastfm");
-
-// Utility functions
-var shuffle = function(array) {
-    // Shuffle array
-    var idx = array.length,
-        temporaryValue,
-        randomIdx ;
-
-    while (0 !== idx) {
-        // Pick a remaining element
-        randomIdx = Math.floor(Math.random() * idx);
-        idx -= 1;
-        temporaryValue = array[idx];
-        array[idx] = array[randomIdx];
-        array[randomIdx] = temporaryValue;
-    }
-    return array;
-};
-
-var argsort = function(array) {
-    // Sort array in increasing order (in place) and return indices
-    for (var i = 0; i < array.length; i++) {
-        array[i] = [i, array[i]];
-    }
-
-    array.sort(function(a, b) {
-        return a[1] - b[1];
-    });
-
-    var sortedIndices = [];
-    for (i = 0; i < array.length; i++) {
-        sortedIndices.push(array[i][0]);
-        array[i] = array[i][1];
-    }
-
-    return sortedIndices;
-};
-
-blackbird.Player = function(dbName, callback) {
+// Player
+var Player = function(config, callback) {
     var that = this;
-    that.db = new blackbird.sqlite.Database(dbName);
-    // Init lastfm scrobbler
-    that.scrobbler = new blackbird.last({
-        api_key: blackbird.config.lastfm.API_KEY,
-        api_secret: blackbird.config.lastfm.SECRET,
-        username: blackbird.config.lastfm.user,
-        password: blackbird.config.lastfm.password
+    that.db = new sqlite.Database(config.db);
+
+    // Initialize lastfm scrobbler
+    that.scrobbler = new lastfm({
+        api_key: config.lastfm.API_KEY,
+        api_secret: config.lastfm.SECRET,
+        username: config.lastfm.user,
+        password: config.lastfm.password
     });
 
-    that.scrobbler.getSessionKey(function(data) {
-        console.log("session key: " + data.session_key);
-        if (data.success) {
-            console.log("scrobbler active");
+    that.scrobbler.getSessionKey(function(res) {
+        if (res.success) {
             that.scrobbler_active = true;
         }
     });
 
     // Load data from base
-
     that.db.get("SELECT count(*) as c FROM songs", function(err, row) {
         // Generate state/mode etc.
         that.repeat = false;
@@ -88,7 +50,7 @@ blackbird.Player = function(dbName, callback) {
             that.randomSeq.push(i);
         }
 
-        that.randomSeq = shuffle(that.randomSeq);
+        that.randomSeq = utils.shuffle(that.randomSeq);
 
         that.sequence = that.randomSeq;
         that.seqCount = that.sequence.length;
@@ -98,7 +60,7 @@ blackbird.Player = function(dbName, callback) {
         // Bind seekbar update
         $(that.audioElem).bind("timeupdate", function() {
             that.played();
-            blackbird.updateSeek((that.audioElem.currentTime / that.audioElem.duration) * 100);
+            ui.updateSeek((that.audioElem.currentTime / that.audioElem.duration) * 100);
         });
 
         // Bind song ended event
@@ -111,26 +73,25 @@ blackbird.Player = function(dbName, callback) {
 };
 
 // Play given song
-blackbird.Player.prototype.play = function() {
+Player.prototype.play = function() {
     var that = this;
 
     that.getData(that.sequence[that.currentIndex], function(data) {
         // Update UI
         that.currentData = data;
-        blackbird.updateSeek(0);
-        blackbird.updatePlayPause(true);
+        ui.updateSeek(0);
+        ui.updatePlayPause(true);
         that.genCoords(function() {
-            blackbird.plotScatter(that.sequence[that.currentIndex], true);
-            blackbird.resetRipple();
+            ui.plotScatter(that, that.sequence[that.currentIndex], true);
         });
-        // TODO: last fm now playing
+
         that.scrobbled = false;
 
         that.audioElem.src = that.currentData.path;
         that.audioElem.play();
 
         // Update cover art
-        var parser = blackbird.mm(blackbird.fs.createReadStream(that.currentData.path), function(err, metadata) {
+        var parser = mm(fs.createReadStream(that.currentData.path), function(err, metadata) {
             if (err) {
                 throw err;
             }
@@ -148,24 +109,22 @@ blackbird.Player.prototype.play = function() {
                 dataUrl = "./icons/cover.png";
             }
             finally {
-                blackbird.updateInfo(that.currentData.title, that.currentData.artist, dataUrl);
+                ui.updateInfo(that.currentData.title, that.currentData.artist, dataUrl);
             }
-
         });
     });
 };
 
 // Single click and play
 // Disturbs the main sequence, replaces the current element
-blackbird.Player.prototype.singlePlay = function(songIdx) {
+Player.prototype.singlePlay = function(songIdx) {
     var that = this;
     that.sequence[that.currentIndex] = songIdx;
     that.play();
 };
 
 // Play next
-blackbird.Player.prototype.next = function() {
-
+Player.prototype.next = function() {
     var that = this;
 
     // Check if sleep is done
@@ -182,8 +141,7 @@ blackbird.Player.prototype.next = function() {
 };
 
 // Play previous
-blackbird.Player.prototype.previous = function() {
-
+Player.prototype.previous = function() {
     var that = this;
 
     // Check repeat
@@ -197,13 +155,12 @@ blackbird.Player.prototype.previous = function() {
 };
 
 // Seek to given position
-blackbird.Player.prototype.seek = function(position) {
+Player.prototype.seek = function(position) {
     this.audioElem.currentTime = position * this.audioElem.duration / 100.0;
 };
 
 // Pause/play
-blackbird.Player.prototype.pause = function(callback) {
-
+Player.prototype.pause = function(callback) {
     var that = this;
     if (that.audioElem.paused) {
         that.audioElem.play();
@@ -216,7 +173,7 @@ blackbird.Player.prototype.pause = function(callback) {
 };
 
 // Mark the song as played
-blackbird.Player.prototype.played = function() {
+Player.prototype.played = function() {
     var that = this;
 
     duration = that.audioElem.duration;
@@ -234,7 +191,7 @@ blackbird.Player.prototype.played = function() {
                     artist: that.currentData.artist,
                     track: that.currentData.title,
                     callback: function(result) {
-                        console.log("in callback, finished: ", result);
+                        console.log("scrobbled");
                     }
                 });
             }
@@ -247,7 +204,7 @@ blackbird.Player.prototype.played = function() {
 };
 
 // Set data for given id
-blackbird.Player.prototype.getData = function(songId, callback) {
+Player.prototype.getData = function(songId, callback) {
     // Return data from global song id
     var that = this;
     that.db.get("SELECT title, artist, album, path FROM songs WHERE id = ?", songId, function(err, row) {
@@ -256,7 +213,7 @@ blackbird.Player.prototype.getData = function(songId, callback) {
 };
 
 // Execute the given command
-blackbird.Player.prototype.execute = function(cmd, callback) {
+Player.prototype.execute = function(cmd, callback) {
     var that = this;
 
     var command = cmd.split(" "),
@@ -301,7 +258,7 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
                 that.artistSeq.push(row.id);
             });
             that.seqCount = that.artistSeq.length;
-            that.artistSeq = shuffle(that.artistSeq);
+            that.artistSeq = utils.shuffle(that.artistSeq);
             that.sequence = that.artistSeq;
             that.currentIndex = 0;
 
@@ -321,7 +278,7 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
                 that.albumSeq.push(row.id);
             });
             that.seqCount = that.albumSeq.length;
-            that.albumSeq = shuffle(that.albumSeq);
+            that.albumSeq = utils.shuffle(that.albumSeq);
             that.sequence = that.albumSeq;
             that.currentIndex = 0;
 
@@ -350,7 +307,7 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
             }
             else {
                 that.seqCount = that.searchSeq.length;
-                that.searchSeq = shuffle(that.searchSeq);
+                that.searchSeq = utils.shuffle(that.searchSeq);
                 that.sequence = that.searchSeq;
                 that.currentIndex = 0;
 
@@ -376,7 +333,7 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
                            Math.abs(anchorPoint[2] - currentPoint[2]));
         }
 
-        var similarIndices = argsort(distances);
+        var similarIndices = utils.argsort(distances);
         var similarSeq = [];
 
         for (i = 0; i < similarIndices.length; i ++) {
@@ -394,17 +351,6 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
         that.currentIndex = that.savedState.value;
         that.savedState.saved = false;
         callback(["m", "free"]);
-    }
-    // Handle love
-    else if (["love", "l"].indexOf(action) > -1) {
-        // Love track
-        if (that.currentData != null) {
-            // Last fm request here
-            callback("nf");
-        }
-        else {
-            callback("nf");
-        }
     }
     // Handle sleep
     else if (["sleep", "slp"].indexOf(action) > -1) {
@@ -429,14 +375,14 @@ blackbird.Player.prototype.execute = function(cmd, callback) {
 };
 
 // Get coordinates for plotting
-blackbird.Player.prototype.genCoords = function(callback) {
+Player.prototype.genCoords = function(callback) {
     var that = this;
 
     that.db.all("SELECT id, x, y FROM songs", function(err, rows) {
         that.coords = [];
         rows.forEach(function(row) {
             var shade = false;
-            if (blackbird.player.sequence.indexOf(row.id) > -1) {
+            if (that.sequence.indexOf(row.id) > -1) {
                 shade = true;
             }
             that.coords.push([shade, row.x, row.y]);
@@ -444,3 +390,5 @@ blackbird.Player.prototype.genCoords = function(callback) {
         callback();
     });
 };
+
+module.exports = Player;

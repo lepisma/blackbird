@@ -6,8 +6,9 @@ import sqlite3
 import eyed3
 import pyprind
 import os
+import cPickle
 import sys
-from random import random
+from numpy.random import normal as random
 
 
 if len(sys.argv) != 2:
@@ -42,20 +43,24 @@ cmd = "CREATE TABLE songs (id INTEGER PRIMARY KEY, title TEXT, artist TEXT, albu
 cur.execute(cmd)
 
 songs_data = []
+# load features
+files = cPickle.load(open("../notebook/features.pkl"))["files"]
+coords = cPickle.load(open("../notebook/tsne.pkl"))[1]
 
 for idx, song in enumerate(songs):
     try:
         audio_data = eyed3.load(song)
-    except:
-        print song
+        song_idx = files.index(song)
+        songs_data.append((idx,
+                           audio_data.tag.title,
+                           audio_data.tag.artist,
+                           audio_data.tag.album,
+                           song,
+                           coords[song_idx][0],
+                           coords[song_idx][1]))
+    except Exception as e:
+        print e
         sys.exit(1)
-    songs_data.append((idx,
-                       audio_data.tag.title,
-                       audio_data.tag.artist,
-                       audio_data.tag.album,
-                       song,
-                       random(),
-                       random()))
     bar.update()
 
 cur.executemany("INSERT INTO songs VALUES (?, ?, ?, ?, ?, ?, ?)", songs_data)

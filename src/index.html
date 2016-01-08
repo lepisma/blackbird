@@ -3,12 +3,6 @@
     <head>
         <link rel="stylesheet" href="./app/styles/styles.css">
         <link rel="stylesheet" href="./node_modules/font-awesome/css/font-awesome.min.css">
-        <script>
-         window.$ = window.jQuery = require("jquery");
-         window.d3 = require("d3");
-        </script>
-        <script src="./node_modules/jquery-ui/jquery-ui.js">
-        </script>
         <title>
             blackbird
         </title>
@@ -50,6 +44,7 @@
 
             <div id="scatter">
                 <canvas id="scatter-canvas"></canvas>
+                <svg id="scatter-overlay"></svg>
                 <div id="hover-info">
                     <div id="hover-track">
                     </div>
@@ -83,20 +78,8 @@
             </div>
         </div>
 
-        <!-- load scripts -->
-        <script src="./app/js/config.js">
-        </script>
-        <script src="./app/js/ui.js">
-        </script>
-        <script src="./app/js/player.js">
-        </script>
+        <!-- load script -->
         <script src="./app/js/main.js">
-        </script>
-        <script src="./app/js/keys.js">
-        </script>
-        <script src="./app/js/vis.js">
-        </script>
-        <script src="./app/js/scatter.js">
         </script>
     </body>
 </html>

@@ -54,7 +54,7 @@
         border-radius: 3px;
         -webkit-app-region: no-drag;
         box-shadow: 0px 0px 10px;
-        z-index: 1;
+        z-index: 2;
 
         #cover {
             width: 100%;
@@ -66,7 +66,7 @@
                 width: 100%;
                 border-top-left-radius: 3px;
                 border-top-right-radius: 3px;
-                z-index: 1;
+                z-index: 2;
             }
 
             #controls {
@@ -78,7 +78,7 @@
                 opacity: 0;
                 border-top-left-radius: 3px;
                 border-top-right-radius: 3px;
-                z-index: 2;
+                z-index: 3;
                 text-shadow: 0px 0px 10px black;
 
                 &:hover {
@@ -178,6 +178,19 @@
         #hover-artist {
             font-size: 12px;
         }
+    }
+
+    #scatter-overlay {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        pointer-events: none;
+        z-index: 1;
+
+        circle {
+	          fill: none;
+	          stroke: $accent;
+	      }
     }
 }
 
