@@ -16,6 +16,9 @@ cd ./src
 npm install
 pip install numpy pyprind eyed3
 
+# Compile sass
+sass --update ./app/styles
+
 # Use `./utils/scan.py` to scan music
 # and arrange items randomly in the space
 # Generating proper coordinates (as seen in above screen recording)
