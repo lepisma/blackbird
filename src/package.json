@@ -14,9 +14,7 @@
         "simple-lastfm": ""
     },
     "scripts": {
-        "start": "electron .",
-        "watch": "watchify ./app/js/main.js -o ./app/js/bundle.js",
-        "build": "browserify ./app/js/main.js -o ./app/js/bundle.js"
+        "start": "electron ."
     },
     "repository": {
         "type": "git",
@@ -29,8 +27,6 @@
     },
     "homepage": "https://github.com/lepisma/blackbird#readme",
     "devDependencies": {
-        "browserify": "",
-        "watchify": "",
         "electron-rebuild": ""
     }
 }
