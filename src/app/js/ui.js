@@ -59,8 +59,10 @@ ui.hoverInfo  = function(title, artist, pos) {
         "top": pos.y,
         "left": pos.x
     });
-    $("#hover-track").text(title.toLowerCase());
-    $("#hover-artist").text(artist.toLowerCase());
+    if (title != null) {
+        $("#hover-track").text(title.toLowerCase());
+        $("#hover-artist").text(artist.toLowerCase());   
+    }
 };
 
 // Update seek position
@@ -345,19 +347,27 @@ ui.initScatter = function(player) {
 
     // Change hover circles on mousemove
     canvas.canvas.addEventListener("mousemove", function(evt) {
-        var mousePos = getMousePos(canvas.canvas, evt);
-        var posCoord = {};
+        var mousePos = getMousePos(canvas.canvas, evt),
+            posCoord = {},
+            nearestPoint;
+
         // Find coordinates in coords space
         posCoord.x = xScale.invert(mousePos.x);
         posCoord.y = yScale.invert(mousePos.y);
 
-        scatterStates.hover = getNearestPoint(posCoord);
-        draw();
-
-        player.getData(scatterStates.hover, function(song) {
-            ui.hoverInfo(song.title, song.artist, mousePos);
-        });
-
+        nearestPoint = getNearestPoint(posCoord);
+        if (nearestPoint != scatterStates.hover) {
+            // Only update (and run query) if needed
+            scatterStates.hover = nearestPoint;
+            draw();
+            player.getData(scatterStates.hover, function(song) {
+                ui.hoverInfo(song.title, song.artist, mousePos);
+            });
+        }
+        else {
+            // But keep moving the div
+            ui.hoverInfo(null, null, mousePos);
+        }
     }, false);
 
     // Play clicked song
