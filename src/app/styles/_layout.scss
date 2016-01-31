@@ -32,17 +32,6 @@
     box-shadow: 0px 0px 10px;
     -webkit-app-region: drag;
 
-    #head-line {
-        position: relative;
-        height: 5px;
-        background-color: $accent;
-        width: 100%;
-
-        &.error {
-            background-color: red;
-        }
-    }
-
     // Floating player
     #player {
         position: absolute;
@@ -156,6 +145,34 @@
             color: #949494;
         }
     }
+
+    // Title bar buttons
+    #titlebar-buttons {
+        position: absolute;
+        top: 7px;
+        right: 7px;
+        display: inline-flex;
+        -webkit-app-region: no-drag;
+        .title-btn {
+            background: #5A5858;
+            height: 12px;
+            width: 12px;
+            border-radius: 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        #minimize-btn:hover {
+            background: #2ecc71;
+        }
+        #maximize-btn:hover {
+            background: #f1c40f;
+        }
+        #close-btn:hover {
+            background: red;
+        }
+    }
+
 }
 
 // Scatter plot
@@ -199,7 +216,7 @@
     position: absolute;
     bottom: 0px;
     width: 100%;
-    height: 40px;
+    height: 45px;
     background-color: $middle;
     box-shadow: 0px 0px 10px;
     display: inline-block;
@@ -245,6 +262,18 @@
             color: gray;
             font-size: 16px;
             font-variant: small-caps;
+        }
+    }
+
+    #foot-line {
+        position: absolute;
+        bottom: 0px;
+        height: 5px;
+        background-color: $accent;
+        width: 100%;
+
+        &.error {
+            background-color: red;
         }
     }
 }

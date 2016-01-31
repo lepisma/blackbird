@@ -11,8 +11,10 @@ var restify = require("restify");
 
 blackbird.config = require("./app/js/config");
 blackbird.Player = require("./app/js/player");
-blackbird.ipc = require("electron").ipcRenderer;
+blackbird.electron = require("electron");
+blackbird.ipc = blackbird.electron.ipcRenderer;
 blackbird.api = restify.createServer();
+blackbird.mainWindow = blackbird.electron.remote.getCurrentWindow();
 
 blackbird.player = new blackbird.Player(blackbird.config, function() {
     // Create seek slider
@@ -83,6 +85,24 @@ $("#play-btn").click(function() {
     blackbird.player.pause(function(playState) {
         ui.updatePlayPause(playState);
     });
+});
+
+// Title bar buttons
+$("#minimize-btn").click(function() {
+    blackbird.mainWindow.minimize();
+});
+
+$("#maximize-btn").click(function() {
+    if (blackbird.mainWindow.isMaximized()) {
+        blackbird.mainWindow.unmaximize();
+    }
+    else {
+        blackbird.mainWindow.maximize();
+    }
+});
+
+$("#close-btn").click(function() {
+    blackbird.mainWindow.close();
 });
 
 // Global keybindings

@@ -7,6 +7,7 @@ const BrowserWindow = electron.BrowserWindow;
 const Tray = electron.Tray;
 const Menu = electron.Menu;
 const path = require("path");
+const ipcMain = electron.ipcMain;
 
 require("crash-reporter").start();
 
@@ -18,6 +19,7 @@ app.on("ready", function() {
         width: 800,
         height: 560,
         frame: false,
+        transparent: true,
         resizable: true,
         icon: path.join(__dirname, "/icons/icon32.png")
     });

@@ -99,7 +99,7 @@ ui.loading = function(activate) {
 
 // Flash error
 ui.flash = function() {
-    var bar = $("#head-line");
+    var bar = $("#foot-line");
 
     bar.addClass("error", 500, "swing");
     setTimeout(function() {
