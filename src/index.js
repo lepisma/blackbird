@@ -1,11 +1,12 @@
 // Electron entry point
 
-var app = require("app");
-var BrowserWindow = require("browser-window");
-var shortcuts = require("global-shortcut");
-var path = require("path");
-var tray = require("tray");
-var menu = require("menu");
+const electron = require("electron");
+const app = electron.app;
+const shortcuts = electron.globalShortcut;
+const BrowserWindow = electron.BrowserWindow;
+const Tray = electron.Tray;
+const Menu = electron.Menu;
+const path = require("path");
 
 require("crash-reporter").start();
 
@@ -21,10 +22,11 @@ app.on("ready", function() {
         icon: path.join(__dirname, "/icons/icon32.png")
     });
 
+    mainWindow.setMenu(null);
     // Tray icon
-    appIcon = new tray(path.join(__dirname, "/icons/icon16.png"));
+    appIcon = new Tray(path.join(__dirname, "/icons/icon16.png"));
     appIcon.setToolTip("blackbird");
-    var trayMenu = menu.buildFromTemplate([
+    var trayMenu = Menu.buildFromTemplate([
         {
             label: "Exit",
             click: function() {
@@ -43,7 +45,7 @@ app.on("ready", function() {
     });
 
     // and load the index.html of the app.
-    mainWindow.loadUrl(path.join(__dirname, "index.html"));
+    mainWindow.loadURL(path.join(__dirname, "index.html"));
 
     // Open the devtools.
     mainWindow.openDevTools();

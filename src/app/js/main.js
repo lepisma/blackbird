@@ -11,7 +11,7 @@ var restify = require("restify");
 
 blackbird.config = require("./app/js/config");
 blackbird.Player = require("./app/js/player");
-blackbird.ipc = require("ipc");
+blackbird.ipc = require("electron").ipcRenderer;
 blackbird.api = restify.createServer();
 
 blackbird.player = new blackbird.Player(blackbird.config, function() {
@@ -86,7 +86,7 @@ $("#play-btn").click(function() {
 });
 
 // Global keybindings
-blackbird.ipc.on("ping", function(arg) {
+blackbird.ipc.on("ping", function(event, arg) {
     switch (arg) {
     case "play-pause":
         blackbird.player.pause(function(playState) {
