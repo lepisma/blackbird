@@ -19,7 +19,6 @@ app.on("ready", function() {
         width: 800,
         height: 560,
         frame: false,
-        transparent: true,
         resizable: true,
         icon: path.join(__dirname, "/icons/icon32.png")
     });
