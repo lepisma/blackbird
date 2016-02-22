@@ -60,8 +60,8 @@ ui.hoverInfo  = function(title, artist, pos) {
         "left": pos.x
     });
     if (title != null) {
-        $("#hover-track").text(title.toLowerCase());
-        $("#hover-artist").text(artist.toLowerCase());   
+        $("#hover-track").text(title);
+        $("#hover-artist").text(artist);
     }
 };
 
@@ -72,16 +72,16 @@ ui.updateSeek = function(position) {
 
 // Update play/pause button
 ui.updatePlayPause = function(currentState) {
-    var btn = $("#play-btn");
+    var btn = $("#play-btn"),
+        animImg = $("#pause-img");
 
     if (currentState) {
-        // It is playing
-        btn.removeClass("fa-play");
-        btn.addClass("fa-pause");
+        btn.css({"opacity": 0});
+        animImg.show().addClass("zoomed");
     }
     else {
-        btn.removeClass("fa-pause");
-        btn.addClass("fa-play");
+        btn.css({"opacity": 0.8});
+        animImg.show().removeClass("zoomed");
     }
 };
 
@@ -98,12 +98,12 @@ ui.loading = function(activate) {
 };
 
 // Flash error
-ui.flash = function() {
+ui.flash = function(flashType) {
     var bar = $("#foot-line");
 
-    bar.addClass("error", 500, "swing");
+    bar.addClass(flashType, 500, "swing");
     setTimeout(function() {
-        bar.removeClass("error", 2000, "linear");
+        bar.removeClass(flashType, 2000, "linear");
     }, 500);
 };
 
@@ -114,6 +114,16 @@ ui.setRepeat = function(state) {
     }
     else {
         $(".fa-repeat").addClass("disabled");
+    }
+};
+
+// Lastfm icon
+ui.setLast = function(state) {
+    if (state) {
+        $(".fa-lastfm").removeClass("disabled");
+    }
+    else {
+        $(".fa-lastfm").addClass("disabled");
     }
 };
 
@@ -138,6 +148,22 @@ ui.setMode = function(player, mode) {
     }
 };
 
+// Fill and show metadata fields
+ui.metadataShow = function(metadata) {
+    $("#artist-input").val(metadata.artist);
+    $("#title-input").val(metadata.title);
+    $("#metadata").show();
+};
+
+// Hide and return metadata fields
+ui.metadataReturn = function() {
+    $("#metadata").hide();
+    return {
+        "artist": $("#artist-input").val(),
+        "title": $("#title-input").val()
+    };
+};
+
 // Scatter plot things
 var scatterStates = {
     current: -1,
@@ -160,7 +186,7 @@ var draw = function() {
     canvas.lineWidth = 1;
 
     // Draw horizontal lines
-    for (var i = 0; i < 10; i++) {
+    for (var i = 1; i <= 10; i++) {
         canvas.beginPath();
         canvas.moveTo(0, i * scatterHeight / 10);
         canvas.lineTo(scatterWidth, i * scatterHeight / 10);
@@ -168,7 +194,7 @@ var draw = function() {
     }
 
     // Draw vertical lines
-    for (i = 0; i < 20; i++) {
+    for (i = 1; i <= 20; i++) {
         canvas.beginPath();
         canvas.moveTo(i * scatterWidth / 20, 0);
         canvas.lineTo(i * scatterWidth / 20, scatterHeight);
@@ -204,57 +230,21 @@ var draw = function() {
     }
     canvas.fillStyle = "rgba(149, 165, 166, 0.6)";
     canvas.fill();
-
-    // Currently playing track
-    canvas.beginPath();
-    d = data[scatterStates.current];
-    cx = xScale(d[1]);
-    cy = yScale(d[2]);
-    canvas.arc(cx, cy, 5.0, 0, 2 * Math.PI);
-    canvas.lineWidth = 2;
-    canvas.strokeStyle = "rgba(41, 128, 185, 1.0)";
-    canvas.stroke();
-    canvas.beginPath();
-    canvas.arc(cx, cy, 15.0, 0, 2 * Math.PI);
-    canvas.lineWidth = 1;
-    canvas.strokeStyle = "rgba(41, 128, 185, 1.0)";
-    canvas.stroke();
-
-    // Hover
-    if (scatterStates.hover != -1) {
-        canvas.beginPath();
-        d = data[scatterStates.hover];
-        cx = xScale(d[1]);
-        cy = yScale(d[2]);
-        canvas.arc(cx, cy, 5.0, 0, 2 * Math.PI);
-        canvas.lineWidth = 4;
-        canvas.strokeStyle = "rgba(41, 128, 185, 1.0)";
-        canvas.stroke();
-    }
-
-    // Draw similar zone
-    if (scatterStates.similar != -1) {
-        d = data[scatterStates.similar];
-        cx = xScale(d[1]);
-        cy = yScale(d[2]);
-        canvas.beginPath();
-        canvas.arc(cx, cy, 50, 0, 2 * Math.PI);
-        canvas.fillStyle = "rgba(41, 128, 185, 0.2)";
-        canvas.fill();
-    }
 }
 
 // Draw ripples on SVG
 var rippleAnimate = function() {
     // Delete older ripples
-    overlaySVG.selectAll("circle").
-        remove();
+    overlaySVG.selectAll("circle")
+        .filter(".ripple")
+        .remove();
 
     var datum = data[scatterStates.current];
 
     for (var i = 1; i < 4; i++) {
 		    var circle = overlaySVG.append("circle")
             .data([datum])
+            .attr("class", "ripple")
 		        .attr("cx", function(d) { return xScale(d[1]); })
 		        .attr("cy", function(d) { return yScale(d[2]); })
 		        .attr("r", 0)
@@ -271,12 +261,70 @@ var rippleAnimate = function() {
 		}
 }
 
-// Translate ripples in case of scale change
-var rippleTranslate = function() {
+// Draw hover circles
+var drawHover = function() {
+    // Delete old point
+    overlaySVG.selectAll("circle")
+        .filter(".hover")
+        .remove();
+    if (scatterStates.hover != -1) {
+        var datum = data[scatterStates.hover];
+        var circle = overlaySVG.append("circle")
+            .data([datum])
+            .attr("class", "hover")
+            .attr("cx", function(d) { return xScale(d[1]); })
+            .attr("cy", function(d) { return yScale(d[2]); })
+            .attr("r", 5);
+    }
+}
+
+// Draw similar zone
+var drawSimilar = function() {
+    // Delete old zone
+    overlaySVG.selectAll("circle")
+        .filter(".similar")
+        .remove();
+    if (scatterStates.similar != -1) {
+        var datum = data[scatterStates.similar];
+        var circle = overlaySVG.append("circle")
+            .data([datum])
+            .attr("class", "similar")
+            .attr("cx", function(d) { return xScale(d[1]); })
+            .attr("cy", function(d) { return yScale(d[2]); })
+            .attr("r", 50);
+    }
+}
+
+// Draw current playing circles
+var drawCurrent = function() {
+    var datum = data[scatterStates.current];
+
+    overlaySVG.selectAll("circle")
+        .filter(".current")
+        .remove();
+
+    overlaySVG.append("circle")
+        .data([datum])
+        .attr("class", "current")
+        .attr("id", "inner")
+        .attr("cx", function(d) { return xScale(d[1]); })
+        .attr("cy", function(d) { return yScale(d[2]); })
+        .attr("r", 5);
+
+    overlaySVG.append("circle")
+        .data([datum])
+        .attr("class", "current")
+        .attr("cx", function(d) { return xScale(d[1]); })
+        .attr("cy", function(d) { return yScale(d[2]); })
+        .attr("r", 15);
+}
+
+// Translate circles in case of scale change
+var circlesTranslate = function() {
     overlaySVG.selectAll("circle")
         .attr("cx", function(d) { return xScale(d[1]); })
         .attr("cy", function(d) { return yScale(d[2]); });
-}
+};
 
 // Initialize scatter plot
 ui.initScatter = function(player) {
@@ -320,8 +368,8 @@ ui.initScatter = function(player) {
     function zoomed() {
         // draw canvas
         draw();
-        // Shift ripples
-        rippleTranslate();
+        // Shift circles
+        circlesTranslate();
     }
 
     $(window).resize(function() {
@@ -342,7 +390,7 @@ ui.initScatter = function(player) {
         yScale.range([scatterHeight, 0]);
 
         draw();
-        rippleTranslate();
+        circlesTranslate();
     }
 
     // Change hover circles on mousemove
@@ -359,7 +407,8 @@ ui.initScatter = function(player) {
         if (nearestPoint != scatterStates.hover) {
             // Only update (and run query) if needed
             scatterStates.hover = nearestPoint;
-            draw();
+            drawHover();
+            // Don't redraw on canvas everytime
             player.getData(scatterStates.hover, function(song) {
                 ui.hoverInfo(song.title, song.artist, mousePos);
             });
@@ -415,6 +464,9 @@ ui.initScatter = function(player) {
 
         return minIdx;
     };
+
+    // First draw
+    draw();
 }
 
 // Plot
@@ -426,10 +478,14 @@ ui.plotScatter = function(player, currentId, rip) {
     }
 
     if (rip) {
+        drawCurrent();
         rippleAnimate();
     }
+    else {
+        draw();
+    }
 
-    draw();
+    drawSimilar();
 };
 
 module.exports = ui;

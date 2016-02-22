@@ -37,6 +37,6 @@ class YtDownloader(object):
             song.tag.save()
             return "ok"
 
-s = zerorpc.Server(YtDownloader("D:\\"))
+s = zerorpc.Server(YtDownloader("D:\\BlackbirdDownloads\\"))
 s.bind("tcp://0.0.0.0:1236")
 s.run()

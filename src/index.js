@@ -16,8 +16,10 @@ var appIcon = null;
 
 app.on("ready", function() {
     mainWindow = new BrowserWindow({
-        width: 800,
-        height: 560,
+        width: 780,
+        height: 440,
+        minWidth: 780,
+        minHeight: 440,
         frame: false,
         resizable: true,
         icon: path.join(__dirname, "/icons/icon32.png")

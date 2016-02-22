@@ -12,7 +12,8 @@
         "d3": "",
         "sqlite3": "",
         "simple-lastfm": "",
-        "restify": ""
+        "restify": "",
+        "zerorpc": ""
     },
     "scripts": {
         "start": "electron ."
@@ -28,6 +29,6 @@
     },
     "homepage": "https://github.com/lepisma/blackbird#readme",
     "devDependencies": {
-        "electron-rebuild": ""
+        "electron-rebuild": "^1.1.3"
     }
 }

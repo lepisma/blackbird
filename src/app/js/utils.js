@@ -36,5 +36,26 @@ var argsort = function(array) {
     return sortedIndices;
 };
 
+var parseMetadata = function(title) {
+    // Return artist and track name from title
+    splits = title.split("-");
+    if (splits.length == 3) {
+        // Last element is "Youtube"
+        return {
+            "artist": splits[0].trim(),
+            "title": splits[1].trim()
+        };
+    }
+    else {
+        // Return thing for user to handle
+        // Don't try to be intelligent, you are not
+        return {
+            "artist": title,
+            "title": title
+        };
+    }
+};
+
 exports.shuffle = shuffle;
 exports.argsort = argsort;
+exports.parseMetadata = parseMetadata;

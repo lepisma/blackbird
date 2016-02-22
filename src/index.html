@@ -13,16 +13,54 @@
 
             <!-- title and things -->
             <div id="header">
-                <!-- floating player -->
-                <div id="player">
+                <div id="settings-btn" class="btn">
+                    <img src="./icons/settings.png">
+                </div>
+                <div id="youtube-btn" class="btn">
+                    <img src="./icons/youtube.png">
+                </div>
+                <div id="info-text">
+                    <span id="track-name">
+                    </span>
+                    <span id="artist-name">
+                    </span>
+                </div>
+                <div id="titlebar-buttons">
+                    <div id="minimize-btn" class="title-btn btn">
+                    </div>
+                    <div id="maximize-btn" class="title-btn btn">
+                    </div>
+                    <div id="close-btn" class="title-btn btn">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Download metadata -->
+            <div id="metadata">
+                <div>
+                    <div class="metadata-label">artist</div>
+                    <div>
+                        <input id="artist-input">
+                    </div>
+                </div>
+                <div>
+                    <div class="metadata-label">title</div>
+                    <div>
+                        <input id="title-input">
+                    </div>
+                </div>
+            </div>
+
+            <!-- floating player -->
+            <div id="player">
+                <div id="prev-btn" class="btn player-btn">
+                    <img src="./icons/back.svg">
+                </div>
+                <div id="cover-wrap">
                     <div id="cover">
                         <img id ="cover-image" src="./icons/cover.png">
-                        <div id="controls">
-                            <div id="control-buttons">
-                                <i id="prev-btn" class="btn fa fa-backward"></i>
-                                <i id="play-btn" class="btn fa fa-pause"></i>
-                                <i id="next-btn" class="btn fa fa-forward"></i>
-                            </div>
+                        <div id="play-btn" class="btn">
+                            <img src="./icons/pause.svg" id="pause-img">
                         </div>
                     </div>
                     <div id="seek-section">
@@ -32,19 +70,8 @@
                         </div>
                     </div>
                 </div>
-                <div id="info-text">
-                    <div id="track-name">
-                    </div>
-                    <div id="artist-name">
-                    </div>
-                </div>
-                <div id="titlebar-buttons">
-                    <div id="minimize-btn" class="title-btn">
-                    </div>
-                    <div id="maximize-btn" class="title-btn">
-                    </div>
-                    <div id="close-btn" class="title-btn">
-                    </div>
+                <div id="next-btn" class="btn player-btn">
+                    <img src="./icons/next.svg">
                 </div>
             </div>
 
@@ -79,6 +106,10 @@
                     <span class="fa-stack">
                         <i class="fa fa-square fa-stack-2x"></i>
                         <i class="fa fa-moon-o fa-stack-1x fa-inverse disabled"></i>
+                    </span>
+                    <span class="fa-stack">
+                        <i class="fa fa-square fa-stack-2x"></i>
+                        <i class="fa fa-lastfm fa-stack-1x fa-inverse disabled"></i>
                     </span>
                 </div>
                 <div id="foot-line">

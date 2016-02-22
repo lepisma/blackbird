@@ -5,9 +5,11 @@ var blackbird = blackbird || {};
 
 window.$ = window.jQuery = require("jquery");
 window.d3 = require("d3");
-var ui = require("./app/js/ui");
+const ui = require("./app/js/ui");
+const utils = require("./app/js/utils");
 require("jquery-ui");
-var restify = require("restify");
+const restify = require("restify");
+const path = require("path");
 
 blackbird.config = require("./app/js/config");
 blackbird.Player = require("./app/js/player");
@@ -105,6 +107,32 @@ $("#close-btn").click(function() {
     blackbird.mainWindow.close();
 });
 
+// Settings
+$("#settings-btn").click(function() {
+    //
+});
+
+// Youtube window
+$("#youtube-btn").click(function() {
+    if (blackbird.youtubeWindow) {
+        // Window already open, bring to focus
+        blackbird.youtubeWindow.show();
+    }
+    else {
+        // Open youtube
+        blackbird.youtubeWindow = new blackbird.electron.remote.BrowserWindow({
+            width: 500,
+            height: 600
+        });
+        blackbird.youtubeWindow.setMenu(null);
+        blackbird.youtubeWindow.loadURL("https://youtube.com");
+        blackbird.youtubeWindow.on("closed", function() {
+            blackbird.youtubeWindow = null;
+            $("#metadata").hide();
+        });
+    }
+});
+
 // Global keybindings
 blackbird.ipc.on("ping", function(event, arg) {
     switch (arg) {
@@ -137,7 +165,7 @@ $(document).on("keypress", "#command-input", function(e) {
         ui.loading(true);
         blackbird.player.execute(cmd, function(data) {
             if ((data == "nf") || (data.length != 2)) {
-                ui.flash();
+                ui.flash("error");
             }
             else {
                 if (data[0] == "m") {
@@ -151,6 +179,29 @@ $(document).on("keypress", "#command-input", function(e) {
                 }
                 else if (data[0] == "s") {
                     ui.setSleep(data[1]);
+                }
+                else if (data[0] == "d") {
+                    // flag error if youtubeWindow not opened
+                    if ((blackbird.youtubeWindow == null) || (data[1] == "error")) {
+                        ui.flash("error");
+                    }
+                    else {
+                        // Do something for download
+                        if (data[1] == "confirm") {
+                            // Fill and confirm input boxes
+                            var metadata = utils.parseMetadata(blackbird.youtubeWindow.getTitle());
+                            ui.metadataShow(metadata);
+                        }
+                        else if (data[1] == "ok") {
+                            // Download using data from input boxes
+                            metadata = ui.metadataReturn();
+                            var url = blackbird.youtubeWindow.getURL();
+                            blackbird.player.client.invoke("save", url, metadata, function(err, res, more) {
+                                console.log(err);
+                            });
+                            ui.flash("ok");
+                        }
+                    }
                 }
             }
             ui.loading(false);

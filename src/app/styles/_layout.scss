@@ -11,6 +11,7 @@
 
 #header {
 
+    transition-duration: 0s;
     &.loading {
         background-size: 100px 100px;
         background-image: linear-gradient(
@@ -26,69 +27,203 @@
         animation: loading 0.5s linear infinite;
     }
 
-    height: 120px;
+    height: 60px;
     width: 100%;
-    background-color: $middle;
-    box-shadow: 0px 0px 10px;
+    background-color: $deep;
     -webkit-app-region: drag;
 
-    // Floating player
-    #player {
+    // Settings
+    #settings-btn, #youtube-btn {
         position: absolute;
         top: 20px;
         left: 20px;
-        height: 120px;
-        width: 100px;
-        background-color: $middle;
-        border-radius: 3px;
         -webkit-app-region: no-drag;
-        box-shadow: 0px 0px 10px;
-        z-index: 2;
 
-        #cover {
+        img {
+            opacity: 0.6;
+            height: 20px;
+            width: 20px;
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+
+    #youtube-btn {
+        left: 50px;
+    }
+
+    // Play info
+    #info-text {
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 15px;
+        color: $accent;
+        white-space: nowrap;
+        overflow: hidden;
+
+        #artist-name {
+            margin-left: 20px;
+            color: #949494;
+        }
+    }
+
+    // Title bar buttons
+    #titlebar-buttons {
+        position: absolute;
+        top: 20px;
+        right: 15px;
+        display: inline-flex;
+        -webkit-app-region: no-drag;
+        .title-btn {
+            background: #5A5858;
+            height: 12px;
+            width: 12px;
+            border-radius: 20px;
+            margin: 5px;
+            opacity: 0.5;
+            &:hover {
+                opacity: 1;
+            }
+        }
+
+        #minimize-btn {
+            background: #2ecc71;
+        }
+        #maximize-btn {
+            background: #f1c40f;
+        }
+        #close-btn {
+            background: red;
+        }
+    }
+
+}
+
+// Metadata
+#metadata {
+    display: none;
+    position: absolute;
+    bottom: 40px;
+    right: 0px;
+    width: 150px;
+    background-color: rgba(23, 23, 23, 0.6);
+    font-size: 11px;
+    color: $accent;
+    z-index: 100;
+    padding: 20px;
+    text-align: right;
+    border-top-left-radius: 10px;
+
+    #artist-input {
+        margin-bottom: 6px;
+    }
+
+    input {
+        width: 100%;
+        color: rgb(180, 180, 180);
+        text-align: right;
+        background: transparent;
+        border-width: 0px;
+        border-bottom-width: 1px;
+        border-style: solid;
+        border-color: $accent;
+    }
+}
+
+// Floating player
+#player {
+    position: absolute;
+    bottom: 60px;
+    left: 30px;
+    display: inline-flex;
+    z-index: 2;
+    opacity: 0.6;
+
+    &:hover {
+        opacity: 1;
+    }
+
+    .player-btn {
+        width: 10px;
+        position: relative;
+        opacity: 0.6;
+        &:hover {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+        img {
             width: 100%;
-            height: 100px;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+    }
+
+    #prev-btn {
+        height: 40px;
+        top: 20px;
+        margin-right: 5px;
+    }
+
+    #next-btn {
+        height: 60px;
+        width: 20px;
+        margin-left: 5px;
+        top: 10px;
+        &:hover {
+            margin-left: 8px;
+        }
+    }
+
+    #cover-wrap {
+        background: $middle;
+        box-shadow: 0px 0px 10px;
+        border-radius: 3px;
+        width: 80px;
+        #cover {
+            width: 80px;
+            height: 80px;
 
             #cover-image {
                 position: absolute;
                 height: inherit;
-                width: 100%;
                 border-top-left-radius: 3px;
                 border-top-right-radius: 3px;
                 z-index: 2;
+                width: 80px;
+                height: 80px;
             }
 
-            #controls {
+            #play-btn {
                 position: absolute;
                 height: inherit;
-                width: 100%;
-                background: -webkit-linear-gradient(top, rgba(0,0,0,0) 0%,rgba(0,0,0,0.5) 50%,rgba(0,0,0,0) 100%);
-                color: white;
-                opacity: 0;
-                border-top-left-radius: 3px;
-                border-top-right-radius: 3px;
+                width: 80px;
+                background: rgb(0, 0, 0);
                 z-index: 3;
-                text-shadow: 0px 0px 10px black;
 
-                &:hover {
-                    opacity: 1;
-                }
+                #pause-img {
+                    width: 40px;
+                    height: 40px;
+                    margin-left: 20px;
+                    margin-top: 20px;
 
-                #control-buttons {
-                    position: relative;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    text-align: center;
-                    width: 100%;
-                    letter-spacing: 5px;
+                    &.zoomed {
+                        margin-top: -10px;
+                        margin-left: -10px;
+                        width: 100px;
+                        height: 100px;
+                        opacity: 0;
+                    }
                 }
             }
         }
-
         #seek-section {
             position: relative;
             width: 100%;
-            height: 20px;
+            height: 10px;
 
             #vis {
                 position: absolute;
@@ -117,80 +252,30 @@
 
         .ui-slider .ui-slider-handle{
             width: 2px;
-            height: 20px;
+            height: 10px;
             background: $accent;
             position: absolute;
             top: 0px;
         }
     }
-
-    // Play info
-    #info-text {
-        position: relative;
-        left: 140px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 15px;
-        color: $accent;
-        white-space: nowrap;
-        overflow: hidden;
-
-        #track-name {
-            font-family: "Bebas Neue Regular";
-            font-size: 30px;
-        }
-
-        #artist-name {
-            font-family: "Bebas Neue Bold";
-            color: #949494;
-        }
-    }
-
-    // Title bar buttons
-    #titlebar-buttons {
-        position: absolute;
-        top: 7px;
-        right: 7px;
-        display: inline-flex;
-        -webkit-app-region: no-drag;
-        .title-btn {
-            background: #5A5858;
-            height: 12px;
-            width: 12px;
-            border-radius: 20px;
-            margin: 5px;
-            cursor: pointer;
-        }
-
-        #minimize-btn:hover {
-            background: #2ecc71;
-        }
-        #maximize-btn:hover {
-            background: #f1c40f;
-        }
-        #close-btn:hover {
-            background: red;
-        }
-    }
-
 }
 
 // Scatter plot
 #scatter {
     position: absolute;
-    top: 120px;
+    top: 60px;
     bottom: 40px;
-    width: 100%;
+    left: 0px;
+    right: 0px;
 
     #hover-info {
         position: absolute;
         margin-left: 10px;
         margin-top: 10px;
-        font-variant: small-caps;
-        font-family: "Hack";
-        font-size: 15px;
+        font-size: 11px;
         color: rgba(255, 255, 255, 0.3);
         pointer-events:none;
+        transition-duration: 100ms;
 
         #hover-artist {
             font-size: 12px;
@@ -203,11 +288,28 @@
         left: 0px;
         pointer-events: none;
         z-index: 1;
-
         circle {
-	          fill: none;
-	          stroke: $accent;
-	      }
+            transition-duration: 0s;
+            fill: none;
+            stroke: $accent;
+        }
+
+        circle.similar {
+            fill: $accent;
+            opacity: 0.2;
+            stroke: none;
+        }
+
+        circle.hover {
+            stroke-width: 4;
+        }
+
+        circle.current {
+            stroke-width: 1;
+            &#inner {
+                stroke-width: 2;
+            }
+        }
     }
 }
 
@@ -216,9 +318,8 @@
     position: absolute;
     bottom: 0px;
     width: 100%;
-    height: 45px;
-    background-color: $middle;
-    box-shadow: 0px 0px 10px;
+    height: 43px;
+    background-color: $deep;
     display: inline-block;
 
     .fa-stack {
@@ -268,13 +369,16 @@
     #foot-line {
         position: absolute;
         bottom: 0px;
-        height: 5px;
+        height: 3px;
         background-color: $accent;
         width: 100%;
 
         &.error {
             background-color: red;
         }
+
+        &.ok {
+            background-color: #3DD342;
+        }
     }
 }
-

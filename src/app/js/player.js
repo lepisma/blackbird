@@ -6,6 +6,7 @@ var fs = require("fs"),
     mm = require("musicmetadata"),
     sqlite = require("sqlite3"),
     lastfm = require("simple-lastfm"),
+    zerorpc = require("zerorpc"),
     utils = require("./utils"),
     ui = require("./ui");
 
@@ -25,8 +26,13 @@ var Player = function(config, callback) {
     that.scrobbler.getSessionKey(function(res) {
         if (res.success) {
             that.scrobbler_active = true;
+            ui.setLast(true);
         }
     });
+
+    // Connect to downloader
+    that.client = new zerorpc.Client();
+    that.client.connect("tcp://127.0.0.1:1236");
 
     // Load data from base
     that.db.get("SELECT count(*) as c FROM songs", function(err, row) {
@@ -240,6 +246,18 @@ Player.prototype.execute = function(cmd, callback) {
             callback("nf");
         }
     }
+    // Handle download
+    else if (["download", "d"].indexOf(action) > -1) {
+        if (args == "y") {
+            callback(["d", "ok"]);
+        }
+        else if (args == undefined) {
+            callback(["d", "confirm"]);
+        }
+        else {
+            callback(["d", "error"]);
+        }
+    }
     // Handle repeat
     else if (["repeat", "r"].indexOf(action) > -1) {
         that.repeat = !that.repeat;
@@ -295,7 +313,7 @@ Player.prototype.execute = function(cmd, callback) {
         that.searchSeq = [];
         that.db.all("SELECT id, artist, album, title FROM songs", function(err, rows) {
             rows.forEach(function(row) {
-                var text = row.artist + row.album + row.title;
+                var text = row.artist + " " + row.album + " " + row.title;
                 if (typeof(text) == "string") {
                     if (text.toLowerCase().indexOf(args) > -1) {
                         that.searchSeq.push(row.id);

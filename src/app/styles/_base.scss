@@ -4,7 +4,6 @@
 
 
 // Pallette
-// $accent: #179FDE;
 $accent: #00AAAA;
 $deep: #171717;
 $middle: #272727;
@@ -55,6 +54,8 @@ $middle: #272727;
     margin: 0px;
     padding: 0px;
     overflow: hidden;
+    transition-duration: 400ms;
+    font-family: "Segoe UI";
 }
 
 ::-moz-selection {
