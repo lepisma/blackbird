@@ -16,14 +16,14 @@ var Player = function(config, callback) {
 
     // Initialize lastfm scrobbler
     that.scrobbler = new extras.Scrobbler({
-        api_key: config.lastfm.API_KEY,
-        api_secret: config.lastfm.SECRET,
+        api_key: config.lastfm.api_key,
+        api_secret: config.lastfm.secret,
         username: config.lastfm.user,
         password: config.lastfm.password
     });
 
     // Connect to downloader
-    that.downloader = new extras.RpcDownloadClient(config.rpc_address);
+    that.downloader = new extras.RpcDownloadClient(config.rpc_port);
 
     // Initialize api
     that.api = new extras.API(that, config.api_port);

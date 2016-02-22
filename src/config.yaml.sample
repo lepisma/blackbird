@@ -1,0 +1,20 @@
+# Blackbird Config file
+
+# Main database
+db: "./base/data.db"
+
+# lastfm Credentials
+lastfm:
+  user: ""
+  password: ""
+  api_key: ""
+  secret: ""
+
+# Player api port
+api_port: "1234"
+
+# Downloader process port
+rpc_port: "1236"
+
+# Youtube Download directory
+download_dir: ""

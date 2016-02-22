@@ -31,10 +31,10 @@ Scrobbler.prototype.disable = function() {
     ui.setLast(false);
 };
 
-var RpcDownloadClient = function(address) {
+var RpcDownloadClient = function(port) {
     // Connect to youtube downloader
     this.client = new zerorpc.Client();
-    this.client.connect(address);
+    this.client.connect("tcp://127.0.0.1:" + port);
 };
 
 RpcDownloadClient.prototype.parseMetadata = function(title) {

@@ -7,7 +7,9 @@ import eyed3
 import zerorpc
 import subprocess
 import os
+import yaml
 
+config = yaml.load(open("../config.yaml").read())
 
 class YtDownloader(object):
     """
@@ -37,6 +39,6 @@ class YtDownloader(object):
             song.tag.save()
             return "ok"
 
-s = zerorpc.Server(YtDownloader("D:\\BlackbirdDownloads\\"))
-s.bind("tcp://0.0.0.0:1236")
+s = zerorpc.Server(YtDownloader(config["download_dir"]))
+s.bind("tcp://0.0.0.0:" + config["rpc_port"])
 s.run()

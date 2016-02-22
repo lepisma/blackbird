@@ -6,9 +6,11 @@ var blackbird = blackbird || {};
 window.$ = window.jQuery = require("jquery");
 require("jquery-ui");
 window.d3 = require("d3");
+const yamljs = require("yamljs");
 const ui = require("./app/js/ui");
 
-blackbird.config = require("./app/js/config");
+blackbird.config = yamljs.load("./config.yaml");
+
 blackbird.Player = require("./app/js/player");
 blackbird.electron = require("electron");
 blackbird.ipc = blackbird.electron.ipcRenderer;

@@ -1,0 +1,7 @@
+eyed3
+zerorpc
+numpy
+pyprind
+pyyaml
+librosa
+keras
