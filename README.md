@@ -2,48 +2,33 @@
 
 <kbd>under development</kbd>
 
-Exploratory music player
+*Exploratory music player*
 
 ![screen](images/screen.gif)
 
 ---
 
-#### Setup
+#### Running
 
 ```shell
 # Install deps
 cd ./src
 npm install
-pip install numpy pyprind eyed3
+pip install requirements.txt
 
 # Compile sass
 sass --update ./app/styles
 
-# Use `./utils/scan.py` to scan music
+# Setup config.yaml
+
+# Use `./utils/randomscan.py` to scan music
 # and arrange items randomly in the space
-# Generating proper coordinates (as seen in above screen recording)
-# is under development
 
 cd ./utils
-python scan.py <musicdir>
+python randomscan.py <musicdir>
 
-# Setup credentials in `./app/js/config.js`
+npm start
 ```
-
-#### Usage
-
-`npm start`
-
-##### General
-
-- Bottom row contains command entry and general indicators for mode, repeat and sleep.
-![status](images/status.png)
-
-- Header contains playback controls (hover over coverart), visualizer, seekbar and error indicator.
-![head](images/head.png)
-
-- Use right click for draggin the space.
-
 
 ##### Commands
 
@@ -55,6 +40,14 @@ python scan.py <musicdir>
 - `r` / `repeat` → Toggle repeat
 - `slp <n>` / `sleep <n>` → Sleep after playing `n` songs
 - `l` / `love` → Mark songs as loved in last.fm
+- `d` / `download` → Download music from youtube
+
+##### Downloading Music
+
+- Run downloader process `python ./src/utils/downloader.py/`
+- Open Youtube frame (top left button)
+- Navigate to music and enter `d`
+- Confirm metadata and enter `d y` to save mp3 (needs ffmpeg)
 
 ##### Shortcuts
 
@@ -67,9 +60,5 @@ python scan.py <musicdir>
 
 #### Todos
 
-- Script to learn songs vectors containing knowledge from `lastfm` history. Few of the thigns i am trying out are
-  - Convnets on spectograms (or mel spectogram).
-  - Some sort of sequence autoencoder on mel coefficients.
-  - Use listen sessions (listens in one go) to get joint preference information for songs and learn a siamese LSTM network (waiting for a good GPU) to learn similarity.
-- Bring media scanning to frontend.
-- Sequencing commands to plan out (really) long sessions.
+- Shift media management to [beets](beets.io)
+- Feature generation plugins (MFCCs, autoencoders)

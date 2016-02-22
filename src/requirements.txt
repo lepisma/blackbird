@@ -5,3 +5,4 @@ pyprind
 pyyaml
 librosa
 keras
+youtube-dl
