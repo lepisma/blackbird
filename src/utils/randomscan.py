@@ -1,5 +1,5 @@
 """
-Script for scanning music directory
+Script for scanning music directory and generating random coordinates
 """
 
 import sqlite3
@@ -10,7 +10,6 @@ import cPickle
 import sys
 from numpy.random import normal as random
 
-
 if len(sys.argv) != 2:
     print("Error in usage")
     print("use: python scan.py <directory>")
@@ -18,7 +17,8 @@ if len(sys.argv) != 2:
 
 db_file = "../base/data.db"
 
-# Currently performs a hard scan and library reset
+# Performs a hard scan and library reset
+
 try:
     os.remove(db_file)
 except OSError:
@@ -47,7 +47,6 @@ songs_data = []
 for idx, song in enumerate(songs):
     try:
         audio_data = eyed3.load(song)
-        song_idx = files.index(song)
         songs_data.append((idx,
                            audio_data.tag.title,
                            audio_data.tag.artist,
