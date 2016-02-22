@@ -60,5 +60,5 @@ npm start
 
 #### Todos
 
-- Shift media management to [beets](beets.io)
+- Shift media management to [beets](http://beets.io)
 - Feature generation plugins (MFCCs, autoencoders)
