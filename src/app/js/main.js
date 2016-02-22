@@ -107,11 +107,6 @@ $("#close-btn").click(function() {
     blackbird.mainWindow.close();
 });
 
-// Settings
-$("#settings-btn").click(function() {
-    //
-});
-
 // Youtube window
 $("#youtube-btn").click(function() {
     if (blackbird.youtubeWindow) {

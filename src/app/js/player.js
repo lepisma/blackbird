@@ -2,13 +2,13 @@
 // -----------
 
 // imports
-var fs = require("fs"),
-    mm = require("musicmetadata"),
-    sqlite = require("sqlite3"),
-    lastfm = require("simple-lastfm"),
-    zerorpc = require("zerorpc"),
-    utils = require("./utils"),
-    ui = require("./ui");
+const fs = require("fs"),
+      mm = require("musicmetadata"),
+      sqlite = require("sqlite3"),
+      lastfm = require("simple-lastfm"),
+      zerorpc = require("zerorpc"),
+      utils = require("./utils"),
+      ui = require("./ui");
 
 // Player
 var Player = function(config, callback) {
