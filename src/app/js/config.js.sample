@@ -9,7 +9,8 @@ var config = {
         API_KEY: "",
         SECRET: ""
     },
-    api_port: "1234"
+    api_port: "1234",
+    rpc_address: "tcp://127.0.0.1:1236"
 };
 
 module.exports = config;

@@ -467,7 +467,7 @@ ui.initScatter = function(player) {
 
     // First draw
     draw();
-}
+};
 
 // Plot
 ui.plotScatter = function(player, currentId, rip) {

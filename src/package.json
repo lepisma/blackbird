@@ -13,7 +13,8 @@
         "sqlite3": "",
         "simple-lastfm": "",
         "restify": "",
-        "zerorpc": ""
+        "zerorpc": "",
+        "sanitize-filename": ""
     },
     "scripts": {
         "start": "electron ."

@@ -4,18 +4,14 @@
 var blackbird = blackbird || {};
 
 window.$ = window.jQuery = require("jquery");
+require("jquery-ui");
 window.d3 = require("d3");
 const ui = require("./app/js/ui");
-const utils = require("./app/js/utils");
-require("jquery-ui");
-const restify = require("restify");
-const path = require("path");
 
 blackbird.config = require("./app/js/config");
 blackbird.Player = require("./app/js/player");
 blackbird.electron = require("electron");
 blackbird.ipc = blackbird.electron.ipcRenderer;
-blackbird.api = restify.createServer();
 blackbird.mainWindow = blackbird.electron.remote.getCurrentWindow();
 
 blackbird.player = new blackbird.Player(blackbird.config, function() {
@@ -44,34 +40,6 @@ blackbird.player = new blackbird.Player(blackbird.config, function() {
 
     // First play
     blackbird.player.next();
-
-    // Setup api points
-    blackbird.api.get("/current", function(req, res, next) {
-        res.send(blackbird.player.currentData);
-        next();
-    });
-
-    blackbird.api.get("/next", function(req, res, next) {
-        blackbird.player.next();
-        res.send("ok");
-        next();
-    });
-
-    blackbird.api.get("/previous", function(req, res, next) {
-        blackbird.player.previous();
-        res.send("ok");
-        next();
-    });
-
-    blackbird.api.get("/play", function(req, res, next) {
-        blackbird.player.pause(function(playState) {
-            ui.updatePlayPause(playState);
-        });
-        res.send("ok");
-        next();
-    });
-
-    blackbird.api.listen(blackbird.config.api_port);
 });
 
 // Player control logic
@@ -184,17 +152,14 @@ $(document).on("keypress", "#command-input", function(e) {
                         // Do something for download
                         if (data[1] == "confirm") {
                             // Fill and confirm input boxes
-                            var metadata = utils.parseMetadata(blackbird.youtubeWindow.getTitle());
+                            var metadata = blackbird.player.downloader.parseMetadata(blackbird.youtubeWindow.getTitle());
                             ui.metadataShow(metadata);
                         }
                         else if (data[1] == "ok") {
                             // Download using data from input boxes
                             metadata = ui.metadataReturn();
                             var url = blackbird.youtubeWindow.getURL();
-                            blackbird.player.client.invoke("save", url, metadata, function(err, res, more) {
-                                console.log(err);
-                            });
-                            ui.flash("ok");
+                            blackbird.player.downloader.download(url, metadata);
                         }
                     }
                 }

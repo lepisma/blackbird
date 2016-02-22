@@ -5,10 +5,9 @@
 const fs = require("fs"),
       mm = require("musicmetadata"),
       sqlite = require("sqlite3"),
-      lastfm = require("simple-lastfm"),
-      zerorpc = require("zerorpc"),
       utils = require("./utils"),
-      ui = require("./ui");
+      ui = require("./ui"),
+      extras = require("./extras");
 
 // Player
 var Player = function(config, callback) {
@@ -16,23 +15,18 @@ var Player = function(config, callback) {
     that.db = new sqlite.Database(config.db);
 
     // Initialize lastfm scrobbler
-    that.scrobbler = new lastfm({
+    that.scrobbler = new extras.Scrobbler({
         api_key: config.lastfm.API_KEY,
         api_secret: config.lastfm.SECRET,
         username: config.lastfm.user,
         password: config.lastfm.password
     });
 
-    that.scrobbler.getSessionKey(function(res) {
-        if (res.success) {
-            that.scrobbler_active = true;
-            ui.setLast(true);
-        }
-    });
-
     // Connect to downloader
-    that.client = new zerorpc.Client();
-    that.client.connect("tcp://127.0.0.1:1236");
+    that.downloader = new extras.RpcDownloadClient(config.rpc_address);
+
+    // Initialize api
+    that.api = new extras.API(that, config.api_port);
 
     // Load data from base
     that.db.get("SELECT count(*) as c FROM songs", function(err, row) {
@@ -192,7 +186,7 @@ Player.prototype.played = function() {
 
         if (currentTime > (Math.min(capTime, halfTime))) {
             // Scrobble current track
-            if (that.scrobbler_active) {
+            if (that.scrobbler.active) {
                 that.scrobbler.scrobbleTrack({
                     artist: that.currentData.artist,
                     track: that.currentData.title,
