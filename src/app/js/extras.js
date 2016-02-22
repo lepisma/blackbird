@@ -10,8 +10,23 @@ var Scrobbler = function(lastfmCreds) {
     // Lastfm Scrobbler
     var that = this;
     that.active = false;
-    that.lfm = new lastfm(lastfmCreds);
+    that.lfm = new lastfm({
+        api_key: lastfmCreds.api_key,
+        api_secret: lastfmCreds.secret,
+        username: lastfmCreds.user,
+        password: lastfmCreds.password
+    });
     that.enable();
+};
+
+Scrobbler.prototype.scrobble = function(data) {
+    this.lfm.scrobbleTrack({
+        artist: data.artist,
+        track: data.title,
+        callback: function(res) {
+            console.log("scrobbled");
+        }
+    });
 };
 
 Scrobbler.prototype.enable = function() {

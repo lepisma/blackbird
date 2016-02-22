@@ -15,12 +15,7 @@ var Player = function(config, callback) {
     that.db = new sqlite.Database(config.db);
 
     // Initialize lastfm scrobbler
-    that.scrobbler = new extras.Scrobbler({
-        api_key: config.lastfm.api_key,
-        api_secret: config.lastfm.secret,
-        username: config.lastfm.user,
-        password: config.lastfm.password
-    });
+    that.scrobbler = new extras.Scrobbler(config.lastfm);
 
     // Connect to downloader
     that.downloader = new extras.RpcDownloadClient(config.rpc_port);
@@ -187,13 +182,7 @@ Player.prototype.played = function() {
         if (currentTime > (Math.min(capTime, halfTime))) {
             // Scrobble current track
             if (that.scrobbler.active) {
-                that.scrobbler.scrobbleTrack({
-                    artist: that.currentData.artist,
-                    track: that.currentData.title,
-                    callback: function(result) {
-                        console.log("scrobbled");
-                    }
-                });
+                that.scrobbler.scrobble(that.currentData);
             }
             that.scrobbled = true;
             if (that.sleep != null) {
