@@ -23,7 +23,7 @@ class YtDownloader(object):
         filename = metadata["artist"] + "-" + metadata["title"]
         # absolute filename
         filename = os.path.join(self.save_dir, filename)
-        command = "youtube-dl -x --audio-format mp3 --audio-quality 0 "
+        command = "youtube-dl -x --audio-format mp3 --audio-quality 0 --no-playlist "
         command += '--output "' + filename + '.%(ext)s"'
 
         retcode = subprocess.call(command + " " + url)
