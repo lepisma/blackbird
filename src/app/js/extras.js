@@ -29,6 +29,14 @@ Scrobbler.prototype.scrobble = function(data) {
     });
 };
 
+Scrobbler.prototype.love = function(data, callback) {
+    this.lfm.loveTrack({
+        artist: data.artist,
+        track: data.title,
+        callback: callback
+    });
+};
+
 Scrobbler.prototype.enable = function() {
     // Get session key and activate scrobbling
     var that = this;

@@ -93,7 +93,6 @@ $("#youtube-btn").click(function() {
         blackbird.youtubeWindow.loadURL("https://youtube.com");
         blackbird.youtubeWindow.on("closed", function() {
             blackbird.youtubeWindow = null;
-            $("#metadata").hide();
         });
     }
 });

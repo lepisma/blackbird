@@ -216,13 +216,9 @@ Player.prototype.execute = function(cmd, callback) {
 
     // Handle love
     if (["love", "l"].indexOf(action) > -1) {
-        if (that.scrobbler_active) {
-            that.scrobbler.loveTrack({
-                artist: that.currentData.artist,
-                track: that.currentData.title,
-                callback: function(result) {
-                    callback(["l", "love"]);
-                }
+        if (that.scrobbler.active) {
+            that.scrobbler.love(that.currentData, function(res) {
+                callback(["l", "love"]);
             });
         }
         else {
