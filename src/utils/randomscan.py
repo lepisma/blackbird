@@ -9,13 +9,16 @@ import os
 import cPickle
 import sys
 from numpy.random import normal as random
+import yaml
+
+config = yaml.load(open("../config.yaml").read())
 
 if len(sys.argv) != 2:
     print("Error in usage")
     print("use: python scan.py <directory>")
     sys.exit(1)
 
-db_file = "../base/data.db"
+db_file = config["db"]
 
 # Performs a hard scan and library reset
 

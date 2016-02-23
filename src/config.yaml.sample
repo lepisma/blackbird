@@ -1,7 +1,8 @@
 # Blackbird Config file
+# Insert absolute paths
 
-# Main database
-db: "./base/data.db"
+# Main database path
+db: ""
 
 # lastfm Credentials
 lastfm:
