@@ -1,5 +1,5 @@
 """
-Script for scanning music directory and generating random coordinates
+Script for generating random coords
 """
 
 import sqlite3
