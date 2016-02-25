@@ -219,7 +219,12 @@ Player.prototype.execute = function(cmd, callback) {
         if (["love", "l"].indexOf(action) > -1) {
             if (that.scrobbler.active) {
                 that.scrobbler.love(that.currentData, function(res) {
-                    callback(["l", "love"]);
+                    if (res.success) {
+                        callback(["l", "love"]);
+                    }
+                    else {
+                        callback("nf");
+                    }
                 });
             }
             else {

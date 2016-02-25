@@ -121,6 +121,9 @@ $(document).on("keypress", "#command-input", function(e) {
                         ui.updateScatter(blackbird.player.coords);
                     });
                 }
+                else if (data[0] == "l") {
+                    ui.flash("ok");
+                }
                 else if (data[0] == "r") {
                     ui.setIndicator("repeat", data[1]);
                 }
