@@ -174,7 +174,6 @@ var scatterStates = {
 },
     scatterWidth,
     scatterHeight,
-    zoom,
     xScale,
     yScale,
     canvas,
@@ -310,7 +309,7 @@ ui.initScatter = function(player) {
 
     scatterWidth = $("#scatter").width(),
     scatterHeight = $("#scatter").height();
-    zoom = d3.behavior.zoom();
+    var zoom = d3.behavior.zoom();
 
     xScale = d3.scale.linear()
         .domain([
@@ -365,8 +364,14 @@ ui.initScatter = function(player) {
         circlesTranslate();
     });
 
+    // Mouse events
+    var mouseDown = false,
+        dragging = false;
+
     // Change hover circles on mousemove
     canvas.canvas.addEventListener("mousemove", function(evt) {
+        dragging = mouseDown;
+
         var mousePos = getMousePos(canvas.canvas, evt),
             posCoord = {},
             nearestPoint;
@@ -388,14 +393,23 @@ ui.initScatter = function(player) {
             // But keep moving the div
             ui.hoverInfo(null, mousePos);
         }
-    }, false);
+    });
+
+    canvas.canvas.addEventListener("mousedown", function(evt) {
+        mouseDown = true;
+    });
 
     // Play clicked song
-    canvas.canvas.addEventListener("click", function(evt) {
-        if (scatterStates.hover != 1) {
-            player.singlePlay(scatterStates.hover);
+    canvas.canvas.addEventListener("mouseup", function(evt) {
+        if (dragging) {
+            dragging = mouseDown = false;
         }
-    }, false);
+        else {
+            if (scatterStates.hover != 1) {
+                player.singlePlay(scatterStates.hover);
+            }
+        }
+    });
 
     // Get relative mouse position
     var getMousePos = function(cv, evt) {
