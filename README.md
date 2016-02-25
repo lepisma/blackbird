@@ -8,27 +8,37 @@
 
 ---
 
-#### Running
+#### Setting Up
 
-```shell
-# Install deps
-cd ./src
-npm install
-pip install requirements.txt
+1. Initialize a [beets](http://beets.io) library
+2. Setup `config.yaml`
+3. Install dependencies
 
-# Compile sass
-sass --update ./app/styles
+  ```
+  npm install
+  pip install -r requirements.txt
+  gem install sass
+  ```
+4. You might need to rebuild `sqlite3` and `zerorpc`. See [here](http://electron.atom.io/docs/latest/tutorial/using-native-node-modules/).
+5. Compile sass `sass --update ./app/styles`
+6. Run random scanner to generate coordinates for the library
 
-# Setup config.yaml
+  ```
+  cd ./utils
+  python randomscan.py
+  ```
+7. Run `npm start`
 
-# Use `./utils/randomscan.py` to scan music
-# and arrange items randomly in the space
+##### Downloading Music
 
-cd ./utils
-python randomscan.py <musicdir>
+- Run downloader process `python ./utils/downloader.py`
+- Open Youtube frame (top left button)
+- Navigate to music and enter `d`
+- Confirm metadata and enter `d y` to save mp3 (needs `ffmpeg`)
 
-npm start
-```
+##### Setting up Music Features
+
+*TODO*
 
 ##### Commands
 
@@ -42,13 +52,6 @@ npm start
 - `l` / `love` → Mark songs as loved in last.fm
 - `d` / `download` → Download music from youtube
 
-##### Downloading Music
-
-- Run downloader process `python ./src/utils/downloader.py/`
-- Open Youtube frame (top left button)
-- Navigate to music and enter `d`
-- Confirm metadata and enter `d y` to save mp3 (needs ffmpeg)
-
 ##### Shortcuts
 
 - <kbd>ctrl+alt+\<right\></kbd> → Next song
@@ -57,8 +60,3 @@ npm start
 - <kbd>ctrl+alt+\<down\></kbd> → Hide to tray
 - <kbd>ctrl+alt+\<up\></kbd> → Pop to front
 - <kbd>alt+x</kbd> → Enter command (while window active)
-
-#### Todos
-
-- Shift media management to [beets](http://beets.io)
-- Feature generation plugins (MFCCs, autoencoders)
