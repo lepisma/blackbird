@@ -2,12 +2,15 @@
 // ------------
 // Contains interactions with html elements
 
+require("jquery-ui");
+const d3 = require("d3");
+
 var ui = {};
 
 // Setup audio visualizer
-ui.initVisualizer = function(player) {
+ui.initVisualizer = function(element) {
     var canvas = $("#vis")[0],
-        audioElem = player.audioElem,
+        audioElem = element,
         ctx = canvas.getContext("2d"),
         audioCtx = new AudioContext(),
         analyser = audioCtx.createAnalyser(),
@@ -47,22 +50,36 @@ ui.initVisualizer = function(player) {
 };
 
 // Update info of playback
-ui.updateInfo = function(title, artist, coverData) {
-    $("#track-name").text(title);
-    $("#artist-name").text(artist);
-    $("#cover-image").attr("src", coverData);
+ui.updateInfo = function(data) {
+    $("#track-name").text(data.title);
+    $("#artist-name").text(data.artist);
+    $("#cover-image").attr("src", data.cover);
 };
 
 // Update hover update
-ui.hoverInfo  = function(title, artist, pos) {
+ui.hoverInfo  = function(data, pos) {
     $("#hover-info").css({
         "top": pos.y,
         "left": pos.x
     });
-    if (title != null) {
-        $("#hover-track").text(title);
-        $("#hover-artist").text(artist);
+    if (data != null) {
+        $("#hover-track").text(data.title);
+        $("#hover-artist").text(data.artist);
     }
+};
+
+// Create seek slider
+ui.createSeekbar = function(callback) {
+    $("#seek-bar").slider({
+        min: 0,
+        max: 100,
+        value: 0,
+        range: "min",
+        animate: true,
+        slide: function(event, ele) {
+            callback(ele.value);
+        }
+    });
 };
 
 // Update seek position
@@ -107,33 +124,18 @@ ui.flash = function(flashType) {
     }, 500);
 };
 
-// Repeat icon
-ui.setRepeat = function(state) {
+// Set state indicators
+ui.setIndicator = function(name, state) {
+    var elements = {
+        "repeat": ".fa-repeat",
+        "lastfm": ".fa-lastfm",
+        "sleep": ".fa-moon-o"
+    };
     if (state) {
-        $(".fa-repeat").removeClass("disabled");
+        $(elements[name]).removeClass("disabled");
     }
     else {
-        $(".fa-repeat").addClass("disabled");
-    }
-};
-
-// Lastfm icon
-ui.setLast = function(state) {
-    if (state) {
-        $(".fa-lastfm").removeClass("disabled");
-    }
-    else {
-        $(".fa-lastfm").addClass("disabled");
-    }
-};
-
-// Sleep icon
-ui.setSleep = function(state) {
-    if (state) {
-        $(".fa-moon-o").removeClass("disabled");
-    }
-    else {
-        $(".fa-moon-o").addClass("disabled");
+        $(elements[name]).addClass("disabled");
     }
 };
 
@@ -201,8 +203,8 @@ var draw = function() {
         canvas.stroke();
     }
 
-    // Plot circles
-    var d, cx, cy;
+    var cx, cy;
+
     // Plot non active members
     canvas.beginPath();
     for (var key in data) {
@@ -259,62 +261,40 @@ var rippleAnimate = function() {
 		}
 };
 
-// Draw hover circles
-var drawHover = function() {
-    // Delete old point
+// Draw circles
+var drawCircle = function(type) {
+
+    // Clear old elements
     overlaySVG.selectAll("circle")
-        .filter(".hover")
+        .filter("." + type)
         .remove();
-    if (scatterStates.hover != -1) {
-        var datum = data[scatterStates.hover];
-        var circle = overlaySVG.append("circle")
+
+    if (type == "hover") {
+        if (scatterStates.hover != -1) {
+            appendCircle(overlaySVG, type, 5, data[scatterStates.hover]);
+        }
+    }
+    else if (type == "similar") {
+        if (scatterStates.similar != -1) {
+            appendCircle(overlaySVG, type, 50, data[scatterStates.similar]);
+        }
+    }
+    else if (type == "current") {
+        appendCircle(overlaySVG, type, 5, data[scatterStates.current]);
+        overlaySVG.selectAll("circle")
+            .filter("." + type)
+            .attr("id", "inner");
+        appendCircle(overlaySVG, type, 15, data[scatterStates.current]);
+    }
+
+    function appendCircle(svg, cls, r, datum) {
+        svg.append("circle")
             .data([datum])
-            .attr("class", "hover")
+            .attr("class", cls)
             .attr("cx", function(d) { return xScale(d.x); })
             .attr("cy", function(d) { return yScale(d.y); })
-            .attr("r", 5);
-    }
-};
-
-// Draw similar zone
-var drawSimilar = function() {
-    // Delete old zone
-    overlaySVG.selectAll("circle")
-        .filter(".similar")
-        .remove();
-    if (scatterStates.similar != -1) {
-        var datum = data[scatterStates.similar];
-        var circle = overlaySVG.append("circle")
-            .data([datum])
-            .attr("class", "similar")
-            .attr("cx", function(d) { return xScale(d.x); })
-            .attr("cy", function(d) { return yScale(d.y); })
-            .attr("r", 50);
-    }
-};
-
-// Draw current playing circles
-var drawCurrent = function() {
-    var datum = data[scatterStates.current];
-
-    overlaySVG.selectAll("circle")
-        .filter(".current")
-        .remove();
-
-    overlaySVG.append("circle")
-        .data([datum])
-        .attr("class", "current")
-        .attr("id", "inner")
-        .attr("cx", function(d) { return xScale(d.x); })
-        .attr("cy", function(d) { return yScale(d.y); })
-        .attr("r", 5);
-
-    overlaySVG.append("circle")
-        .data([datum])
-        .attr("class", "current")
-        .attr("cx", function(d) { return xScale(d.x); })
-        .attr("cy", function(d) { return yScale(d.y); })
-        .attr("r", 15);
+            .attr("r", r);
+    };
 };
 
 // Translate circles in case of scale change
@@ -364,18 +344,12 @@ ui.initScatter = function(player) {
 
     // Call draw on zooming
     function zoomed() {
-        // draw canvas
         draw();
-        // Shift circles
         circlesTranslate();
     }
 
+    // On resize
     $(window).resize(function() {
-        resizeCanvas();
-    });
-
-    // Reset scales and canvas height, width
-    function resizeCanvas() {
         scatterHeight = $("#scatter").height();
         scatterWidth = $("#scatter").width();
         $("#scatter-canvas")[0].height = scatterHeight;
@@ -389,7 +363,7 @@ ui.initScatter = function(player) {
 
         draw();
         circlesTranslate();
-    }
+    });
 
     // Change hover circles on mousemove
     canvas.canvas.addEventListener("mousemove", function(evt) {
@@ -405,15 +379,14 @@ ui.initScatter = function(player) {
         if (nearestPoint != scatterStates.hover) {
             // Only update (and run query) if needed
             scatterStates.hover = nearestPoint;
-            drawHover();
-            // Don't redraw on canvas everytime
+            drawCircle("hover");
             player.getData(scatterStates.hover, function(song) {
-                ui.hoverInfo(song.title, song.artist, mousePos);
+                ui.hoverInfo(song, mousePos);
             });
         }
         else {
             // But keep moving the div
-            ui.hoverInfo(null, null, mousePos);
+            ui.hoverInfo(null, mousePos);
         }
     }, false);
 
@@ -460,30 +433,26 @@ ui.initScatter = function(player) {
             return Math.abs(data[key].x - point.x) + Math.abs(data[key].y - point.y);
         };
 
-        return minIdx;
+        return parseInt(minIdx);
     };
 
     // First draw
     draw();
 };
 
-// Plot
-ui.plotScatter = function(player, currentId, rip) {
-    data = player.coords;
+ui.plotTrackChange = function(currentId) {
+    // Show animation for track change
+    scatterStates.current = currentId;
+    drawCircle("current");
+    rippleAnimate();
+};
 
-    if (currentId != -1) {
-        scatterStates.current = currentId;
-    }
-
-    if (rip) {
-        drawCurrent();
-        rippleAnimate();
-    }
-    else {
-        draw();
-    }
-
-    drawSimilar();
+ui.updateScatter = function(coords) {
+    // Draw updated data
+    data = coords;
+    draw();
+    // Update similar circle if there
+    drawCircle("similar");
 };
 
 module.exports = ui;

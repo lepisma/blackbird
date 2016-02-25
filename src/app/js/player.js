@@ -55,6 +55,11 @@ var Player = function(config, callback) {
 
         that.audioElem = document.createElement("audio");
 
+        // Create seekbar
+        ui.createSeekbar(function(val) {
+            that.audioElem.currentTime = val * that.audioElem.duration / 100.0;
+        });
+
         // Bind seekbar update
         $(that.audioElem).bind("timeupdate", function() {
             that.played();
@@ -66,34 +71,47 @@ var Player = function(config, callback) {
             that.next();
         });
 
-        callback();
+        // Initialize visualizer
+        ui.initVisualizer(that.audioElem);
+
+        // Gather coordinates
+        that.blackbirdDb.all("SELECT id, x, y FROM coords", function(err, rows) {
+            that.coords = {};
+            rows.forEach(function(row) {
+                that.coords[row.id] = {
+                    x: row.x,
+                    y: row.y
+                };
+            });
+            that.updateCoords(callback);
+        });
     });
+};
+
+Player.prototype.updateCoords = function(callback) {
+    // Update coords with new shading value from current sequence
+    for (var key in this.coords) {
+        this.coords[key].shade = this.sequence.indexOf(parseInt(key)) > -1;
+    }
+    callback();
 };
 
 // Play given song
 Player.prototype.play = function() {
     var that = this;
-
     that.getData(that.sequence[that.currentIndex], function(data) {
         // Update UI
         that.currentData = data;
         ui.updateSeek(0);
         ui.updatePlayPause(true);
-        that.genCoords(function() {
-            ui.plotScatter(that, that.sequence[that.currentIndex], true);
-        });
+        ui.plotTrackChange(that.sequence[that.currentIndex]);
 
         that.scrobbled = false;
-
         that.audioElem.src = that.currentData.path;
         that.audioElem.play();
 
-        // Update cover art
-        var parser = mm(fs.createReadStream(that.currentData.path), function(err, metadata) {
-            if (err) {
-                throw err;
-            }
-
+        // Get cover art
+        mm(fs.createReadStream(that.currentData.path), function(err, metadata) {
             var base64String = "";
             var dataUrl = "";
             try {
@@ -107,89 +125,77 @@ Player.prototype.play = function() {
                 dataUrl = "./icons/cover.png";
             }
             finally {
-                ui.updateInfo(that.currentData.title, that.currentData.artist, dataUrl);
+                that.currentData.cover = dataUrl;
+                ui.updateInfo(that.currentData);
             }
         });
     });
 };
 
 // Single click and play
-// Disturbs the main sequence, replaces the current element
 Player.prototype.singlePlay = function(songIdx) {
-    var that = this;
-    that.sequence[that.currentIndex] = songIdx;
-    that.play();
+    var sequencePos = this.sequence.indexOf(songIdx);
+    this.currentIndex = sequencePos;
+    this.play();
 };
 
 // Play next
 Player.prototype.next = function() {
-    var that = this;
-
     // Check if sleep is done
-    if (that.sleep < 0) {
+    if (this.sleep < 0) {
         return;
     }
 
     // Check repeat
-    if ((!that.repeat) || (that.currentData == null)) {
-        that.currentIndex += 1;
-        that.currentIndex %= that.seqCount;
+    if ((!this.repeat) || (this.currentData == null)) {
+        this.currentIndex += 1;
+        this.currentIndex %= this.seqCount;
     }
-    that.play();
+    this.play();
 };
 
 // Play previous
 Player.prototype.previous = function() {
-    var that = this;
-
     // Check repeat
-    if ((!that.repeat) || (that.currentData == null)) {
-        that.currentIndex -= 1;
-        if (that.currentIndex < 0) {
-            that.currentIndex += that.seqCount;
+    if ((!this.repeat) || (this.currentData == null)) {
+        this.currentIndex -= 1;
+        if (this.currentIndex < 0) {
+            this.currentIndex += this.seqCount;
         };
     }
-    that.play();
-};
-
-// Seek to given position
-Player.prototype.seek = function(position) {
-    this.audioElem.currentTime = position * this.audioElem.duration / 100.0;
+    this.play();
 };
 
 // Pause/play
 Player.prototype.pause = function(callback) {
-    var that = this;
-    if (that.audioElem.paused) {
-        that.audioElem.play();
+    if (this.audioElem.paused) {
+        this.audioElem.play();
         callback(true);
     }
     else {
-        that.audioElem.pause();
+        this.audioElem.pause();
         callback(false);
     }
 };
 
 // Mark the song as played
 Player.prototype.played = function() {
-    var that = this;
+    duration = this.audioElem.duration;
+    currentTime = this.audioElem.currentTime;
 
-    duration = that.audioElem.duration;
-    currentTime = that.audioElem.currentTime;
-
-    if ((that.scrobbled == false) && (duration > 30)) {
+    if ((this.scrobbled == false) && (duration > 30)) {
 
         var halfTime = duration / 2;
         var capTime = 4 * 60;
 
         if (currentTime > (Math.min(capTime, halfTime))) {
             // Scrobble current track
-            if (that.scrobbler.active) {
-                that.scrobbler.scrobble(that.currentData);
+            if (this.scrobbler.active) {
+                this.scrobbler.scrobble(this.currentData);
             }
-            that.scrobbled = true;
-            if (that.sleep != null) {
-                that.sleep -= 1;
+            this.scrobbled = true;
+            if (this.sleep != null) {
+                this.sleep -= 1;
             }
         }
     }
@@ -197,9 +203,8 @@ Player.prototype.played = function() {
 
 // Set data for given id
 Player.prototype.getData = function(songId, callback) {
-    // Return data from global song id
-    var that = this;
-    that.beetsDb.get("SELECT title, artist, album, cast(path as TEXT) as path FROM items WHERE id = ?", songId, function(err, row) {
+    // Return data from song id
+    this.beetsDb.get("SELECT title, artist, album, cast(path as TEXT) as path FROM items WHERE id = ?", songId, function(err, row) {
         callback(row);
     });
 };
@@ -367,23 +372,6 @@ Player.prototype.execute = function(cmd, callback) {
     else {
         callback("nf");
     }
-};
-
-// Get coordinates for plotting
-Player.prototype.genCoords = function(callback) {
-    var that = this;
-
-    that.blackbirdDb.all("SELECT id, x, y FROM coords", function(err, rows) {
-        that.coords = {};
-        rows.forEach(function(row) {
-            that.coords[row.id] = {
-                x: row.x,
-                y: row.y,
-                shade: (that.sequence.indexOf(row.id) > -1)
-            };
-        });
-        callback();
-    });
 };
 
 module.exports = Player;

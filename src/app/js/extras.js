@@ -43,7 +43,7 @@ Scrobbler.prototype.enable = function() {
     that.lfm.getSessionKey(function(res) {
         if (res.success) {
             that.active = true;
-            ui.setLast(true);
+            ui.setIndicator("lastfm", true);
         }
     });
 };
@@ -51,7 +51,7 @@ Scrobbler.prototype.enable = function() {
 Scrobbler.prototype.disable = function() {
     // Mark as disabled, scrobbling happens if active = true
     this.active = false;
-    ui.setLast(false);
+    ui.setIndicator("lastfm", false);
 };
 
 var RpcDownloadClient = function(port) {

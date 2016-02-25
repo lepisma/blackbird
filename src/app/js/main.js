@@ -4,42 +4,17 @@
 var blackbird = blackbird || {};
 
 window.$ = window.jQuery = require("jquery");
-require("jquery-ui");
-window.d3 = require("d3");
 const yamljs = require("yamljs");
 const ui = require("./app/js/ui");
 
 blackbird.config = yamljs.load("./config.yaml");
-
 blackbird.Player = require("./app/js/player");
 blackbird.electron = require("electron");
 blackbird.ipc = blackbird.electron.ipcRenderer;
 blackbird.mainWindow = blackbird.electron.remote.getCurrentWindow();
 
 blackbird.player = new blackbird.Player(blackbird.config, function() {
-    // Create seek slider
-    $("#seek-bar").slider({
-        min: 0,
-        max: 100,
-        value: 0,
-        range: "min",
-        animate: true,
-        slide: function(event, ele) {
-            blackbird.player.seek(ele.value);
-        }
-    });
-
-    // Create visualizer
-    ui.initVisualizer(blackbird.player);
-
-    // Hot start scatter
-    blackbird.player.genCoords(function() {
-        ui.initScatter(blackbird.player);
-        ui.plotScatter(blackbird.player,
-                       blackbird.player.sequence[blackbird.player.currentIndex],
-                      true);
-    });
-
+    ui.initScatter(blackbird.player);
     // First play
     blackbird.player.next();
 });
@@ -135,15 +110,15 @@ $(document).on("keypress", "#command-input", function(e) {
             else {
                 if (data[0] == "m") {
                     ui.setMode(blackbird.player, data[1]);
-                    blackbird.player.genCoords(function() {
-                        ui.plotScatter(blackbird.player, -1, false);
+                    blackbird.player.updateCoords(function() {
+                        ui.updateScatter(blackbird.player.coords);
                     });
                 }
                 else if (data[0] == "r") {
-                    ui.setRepeat(data[1]);
+                    ui.setIndicator("repeat", data[1]);
                 }
                 else if (data[0] == "s") {
-                    ui.setSleep(data[1]);
+                    ui.setIndicator("sleep", data[1]);
                 }
                 else if (data[0] == "d") {
                     // flag error if youtubeWindow not opened

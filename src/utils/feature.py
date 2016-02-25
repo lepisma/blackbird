@@ -4,7 +4,6 @@ Feature extractor functions
 
 import librosa
 import numpy as np
-import theano
 from keras.models import model_from_yaml
 from keras import backend as K
 
