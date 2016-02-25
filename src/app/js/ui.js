@@ -239,17 +239,17 @@ var rippleAnimate = function() {
 
     var datum = data[scatterStates.current];
 
-    for (var i = 1; i < 4; i++) {
+    for (var i = 1; i < 3; i++) {
 		    var circle = overlaySVG.append("circle")
             .data([datum])
             .attr("class", "ripple")
 		        .attr("cx", function(d) { return xScale(d.x); })
 		        .attr("cy", function(d) { return yScale(d.y); })
 		        .attr("r", 0)
-		        .style("stroke-width", 2)
+		        .style("stroke-width", 1)
 		        .transition()
-		        .delay(Math.pow(i, 3) * 50)
-		        .duration(2000)
+		        .delay(Math.pow(i, 3) * 70)
+		        .duration(2500)
 		        .ease("quad-in")
 		        .attr("r", 1000)
 		        .style("stroke-opacity", 0)
