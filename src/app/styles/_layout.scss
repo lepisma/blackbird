@@ -27,7 +27,7 @@
         animation: loading 0.5s linear infinite;
     }
 
-    height: 60px;
+    height: 50px;
     width: 100%;
     background-color: $deep;
     -webkit-app-region: drag;
@@ -35,8 +35,8 @@
     // youtube-btn
     #youtube-btn {
         position: absolute;
-        top: 20px;
-        left: 20px;
+        top: 15px;
+        left: 15px;
         -webkit-app-region: no-drag;
 
         img {
@@ -52,7 +52,7 @@
     // Play info
     #info-text {
         position: absolute;
-        top: 20px;
+        top: 15px;
         left: 50%;
         transform: translateX(-50%);
         font-size: 15px;
@@ -69,8 +69,8 @@
     // Title bar buttons
     #titlebar-buttons {
         position: absolute;
-        top: 20px;
-        right: 15px;
+        top: 10px;
+        right: 10px;
         display: inline-flex;
         -webkit-app-region: no-drag;
         .title-btn {
@@ -259,7 +259,7 @@
 // Scatter plot
 #scatter {
     position: absolute;
-    top: 60px;
+    top: 50px;
     bottom: 40px;
     left: 0px;
     right: 0px;
