@@ -98,6 +98,13 @@ $(document).keydown(function(e) {
     }
 });
 
+// Close
+$(document).keydown(function(e) {
+    if (e.keyCode==87 && e.ctrlKey) {
+        blackbird.mainWindow.close();
+    }
+});
+
 // Command line
 $(document).on("keypress", "#command-input", function(e) {
     if (e.which == 13) {
