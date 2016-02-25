@@ -33,24 +33,18 @@ var Player = function(config, callback) {
         that.repeat = false;
         that.sleep = null;
         that.scrobbled = false;
-        that.savedState = {
-            saved: false,
-            value: 0
-        };
+        that.freemodeSave = null;
         that.currentData = null;
         that.currentIndex = 0;
-        that.randomSeq = [];
-        that.searchSeq = [];
-        that.artistSeq = [];
-        that.albumSeq = [];
+        that.auxSeq = [];
 
         rows.forEach(function(row) {
-            that.randomSeq.push(row.id);
+            that.auxSeq.push(row.id);
         });
 
-        that.randomSeq = utils.shuffle(that.randomSeq);
+        that.auxSeq = utils.shuffle(that.auxSeq);
 
-        that.sequence = that.randomSeq;
+        that.sequence = that.auxSeq;
         that.seqCount = that.sequence.length;
 
         that.audioElem = document.createElement("audio");
@@ -252,19 +246,18 @@ Player.prototype.execute = function(cmd, callback) {
     }
     // Handle artist
     else if (["artist", "a"].indexOf(action) > -1) {
-        if (that.savedState.saved == false) {
-            that.savedState.value = that.currentIndex;
-            that.savedState.saved = true;
+        if (!that.freemodeSave) {
+            that.freemodeSave = that.currentIndex;
         }
 
-        that.artistSeq = [];
+        var seq = [];
         that.beetsDb.all("SELECT id FROM items WHERE artist = ?", that.currentData.artist, function(err, rows) {
             rows.forEach(function(row) {
-                that.artistSeq.push(row.id);
+                seq.push(row.id);
             });
-            that.seqCount = that.artistSeq.length;
-            that.artistSeq = utils.shuffle(that.artistSeq);
-            that.sequence = that.artistSeq;
+            that.seqCount = seq.length;
+            seq = utils.shuffle(seq);
+            that.sequence = seq;
             that.currentIndex = 0;
 
             callback(["m", "artist"]);
@@ -272,19 +265,18 @@ Player.prototype.execute = function(cmd, callback) {
     }
     // Handle album
     else if (["album", "am"].indexOf(action) > -1) {
-        if (that.savedState.saved == false) {
-            that.savedState.value = that.currentIndex;
-            that.savedState.saved = true;
+        if (!that.freemodeSave) {
+            that.freemodeSave = that.currentIndex;
         }
 
-        that.albumSeq = [];
+        seq = [];
         that.beetsDb.all("SELECT id FROM items WHERE album = ?", that.currentData.album, function(err, rows) {
             rows.forEach(function(row) {
-                that.albumSeq.push(row.id);
+                seq.push(row.id);
             });
-            that.seqCount = that.albumSeq.length;
-            that.albumSeq = utils.shuffle(that.albumSeq);
-            that.sequence = that.albumSeq;
+            that.seqCount = seq.length;
+            seq = utils.shuffle(seq);
+            that.sequence = seq;
             that.currentIndex = 0;
 
             callback(["m", "album"]);
@@ -292,23 +284,22 @@ Player.prototype.execute = function(cmd, callback) {
     }
     // Handle search
     else if (["search", "s"].indexOf(action) > -1) {
-        if (that.savedState.saved == false) {
-            that.savedState.value = that.currentIndex;
-            that.savedState.saved = true;
+        if (!that.freemodeSave) {
+            that.freemodeSave = that.currentIndex;
         }
 
-        that.searchSeq = [];
+        seq = [];
         that.beetsDb.all("SELECT id FROM items WHERE (artist || ' ' || title || ' ' || album) like '%' || ? || '%'", args, function(err, rows) {
             rows.forEach(function(row) {
-                that.searchSeq.push(row.id);
+                seq.push(row.id);
             });
-            if (that.searchSeq.length == 0) {
+            if (seq.length == 0) {
                 callback("nf");
             }
             else {
-                that.seqCount = that.searchSeq.length;
-                that.searchSeq = utils.shuffle(that.searchSeq);
-                that.sequence = that.searchSeq;
+                that.seqCount = seq.length;
+                seq = utils.shuffle(seq);
+                that.sequence = seq;
                 that.currentIndex = 0;
 
                 callback(["m", "search"]);
@@ -318,9 +309,8 @@ Player.prototype.execute = function(cmd, callback) {
     }
     // Handle similar
     else if (["similar", "sim"].indexOf(action) > -1) {
-        if (that.savedState.saved == false) {
-            that.savedState.value = that.currentIndex;
-            that.savedState.saved = true;
+        if (!that.freemodeSave) {
+            that.freemodeSave = that.currentIndex;
         }
 
         var distances = [];
@@ -334,22 +324,24 @@ Player.prototype.execute = function(cmd, callback) {
         }
 
         var similarIndices = utils.argsort(distances);
-        var similarSeq = [];
+        seq = [];
 
         for (i = 0; i < similarIndices.length; i ++) {
-            similarSeq.push(that.sequence[similarIndices[i]]);
+            seq.push(that.sequence[similarIndices[i]]);
         }
-        that.sequence = similarSeq;
+        that.sequence = seq;
         that.currentIndex = 0;
 
         callback(["m", "similar"]);
     }
     // Handle free
     else if (["free", "f"].indexOf(action) > -1) {
-        that.sequence = that.randomSeq;
+        that.sequence = that.auxSeq;
         that.seqCount = that.sequence.length;
-        that.currentIndex = that.savedState.value;
-        that.savedState.saved = false;
+        if (that.freemodeSave) {
+            that.currentIndex = that.freemodeSave;
+        }
+        that.freemodeSave = null;
         callback(["m", "free"]);
     }
     // Handle sleep
