@@ -401,14 +401,10 @@ ui.initScatter = function(player) {
 
     // Play clicked song
     canvas.canvas.addEventListener("mouseup", function(evt) {
-        if (dragging) {
-            dragging = mouseDown = false;
+        if ((!dragging) && (scatterStates.hover != 1)) {
+            player.singlePlay(scatterStates.hover);
         }
-        else {
-            if (scatterStates.hover != 1) {
-                player.singlePlay(scatterStates.hover);
-            }
-        }
+        dragging = mouseDown = false;
     });
 
     // Get relative mouse position
