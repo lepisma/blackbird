@@ -16,8 +16,8 @@ var appIcon = null;
 
 app.on("ready", function() {
     mainWindow = new BrowserWindow({
-        width: 780,
-        height: 440,
+        width: 980,
+        height: 540,
         minWidth: 780,
         minHeight: 440,
         frame: false,

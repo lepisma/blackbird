@@ -7,12 +7,16 @@ const fs = require("fs"),
       sqlite = require("sqlite3"),
       utils = require("./utils"),
       ui = require("./ui"),
-      extras = require("./extras");
+      extras = require("./extras"),
+      filters = require("./filters");
 
 // Player
 var Player = function(config, callback) {
     var that = this;
-    that.db = new sqlite.Database(config.db);
+
+    // Setup DB
+    that.beetsDb = new sqlite.Database(config.beets_db);
+    that.blackbirdDb = new sqlite.Database(config.blackbird_db);
 
     // Initialize lastfm scrobbler
     that.scrobbler = new extras.Scrobbler(config.lastfm);
@@ -23,8 +27,8 @@ var Player = function(config, callback) {
     // Initialize api
     that.api = new extras.API(that, config.api_port);
 
-    // Load data from base
-    that.db.get("SELECT count(*) as c FROM songs", function(err, row) {
+    // Initialize sequences
+    that.beetsDb.all("SELECT id FROM items", function(err, rows) {
         // Generate state/mode etc.
         that.repeat = false;
         that.sleep = null;
@@ -40,10 +44,9 @@ var Player = function(config, callback) {
         that.artistSeq = [];
         that.albumSeq = [];
 
-        that.totalCount = row.c;
-        for (var i = 0; i < that.totalCount; i++) {
-            that.randomSeq.push(i);
-        }
+        rows.forEach(function(row) {
+            that.randomSeq.push(row.id);
+        });
 
         that.randomSeq = utils.shuffle(that.randomSeq);
 
@@ -196,7 +199,7 @@ Player.prototype.played = function() {
 Player.prototype.getData = function(songId, callback) {
     // Return data from global song id
     var that = this;
-    that.db.get("SELECT title, artist, album, path FROM songs WHERE id = ?", songId, function(err, row) {
+    that.beetsDb.get("SELECT title, artist, album, cast(path as TEXT) as path FROM items WHERE id = ?", songId, function(err, row) {
         callback(row);
     });
 };
@@ -250,7 +253,7 @@ Player.prototype.execute = function(cmd, callback) {
         }
 
         that.artistSeq = [];
-        that.db.all("SELECT id FROM songs WHERE artist = ?", that.currentData.artist, function(err, rows) {
+        that.beetsDb.all("SELECT id FROM items WHERE artist = ?", that.currentData.artist, function(err, rows) {
             rows.forEach(function(row) {
                 that.artistSeq.push(row.id);
             });
@@ -270,7 +273,7 @@ Player.prototype.execute = function(cmd, callback) {
         }
 
         that.albumSeq = [];
-        that.db.all("SELECT id FROM songs WHERE album = ?", that.currentData.album, function(err, rows) {
+        that.beetsDb.all("SELECT id FROM items WHERE album = ?", that.currentData.album, function(err, rows) {
             rows.forEach(function(row) {
                 that.albumSeq.push(row.id);
             });
@@ -290,14 +293,9 @@ Player.prototype.execute = function(cmd, callback) {
         }
 
         that.searchSeq = [];
-        that.db.all("SELECT id, artist, album, title FROM songs", function(err, rows) {
+        that.beetsDb.all("SELECT id FROM items WHERE (artist || ' ' || title || ' ' || album) like '%' || ? || '%'", args, function(err, rows) {
             rows.forEach(function(row) {
-                var text = row.artist + " " + row.album + " " + row.title;
-                if (typeof(text) == "string") {
-                    if (text.toLowerCase().indexOf(args) > -1) {
-                        that.searchSeq.push(row.id);
-                    }
-                }
+                that.searchSeq.push(row.id);
             });
             if (that.searchSeq.length == 0) {
                 callback("nf");
@@ -326,8 +324,8 @@ Player.prototype.execute = function(cmd, callback) {
 
         for (var i = 0; i < that.sequence.length; i++) {
             currentPoint = that.coords[that.sequence[i]];
-            distances.push(Math.abs(anchorPoint[1] - currentPoint[1]) +
-                           Math.abs(anchorPoint[2] - currentPoint[2]));
+            distances.push(Math.abs(anchorPoint.x - currentPoint.x) +
+                           Math.abs(anchorPoint.y - currentPoint.y));
         }
 
         var similarIndices = utils.argsort(distances);
@@ -375,14 +373,14 @@ Player.prototype.execute = function(cmd, callback) {
 Player.prototype.genCoords = function(callback) {
     var that = this;
 
-    that.db.all("SELECT id, x, y FROM songs", function(err, rows) {
-        that.coords = [];
+    that.blackbirdDb.all("SELECT id, x, y FROM coords", function(err, rows) {
+        that.coords = {};
         rows.forEach(function(row) {
-            var shade = false;
-            if (that.sequence.indexOf(row.id) > -1) {
-                shade = true;
-            }
-            that.coords.push([shade, row.x, row.y]);
+            that.coords[row.id] = {
+                x: row.x,
+                y: row.y,
+                shade: (that.sequence.indexOf(row.id) > -1)
+            };
         });
         callback();
     });

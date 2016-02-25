@@ -1,8 +1,9 @@
 # Blackbird Config file
 # Insert absolute paths
 
-# Main database path
-db: ""
+# Databases path
+beets_db: ""
+blackbird_db: ""
 
 # lastfm Credentials
 lastfm:

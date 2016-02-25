@@ -205,11 +205,10 @@ var draw = function() {
     var d, cx, cy;
     // Plot non active members
     canvas.beginPath();
-    for (i = 0; i < data.length; i++) {
-        d = data[i];
-        if (!d[0]) {
-            cx = xScale(d[1]);
-            cy = yScale(d[2]);
+    for (var key in data) {
+        if (!data[key].shade) {
+            cx = xScale(data[key].x);
+            cy = yScale(data[key].y);
             canvas.moveTo(cx, cy);
             canvas.arc(cx, cy, 1, 0, 2 * Math.PI);
         }
@@ -219,18 +218,17 @@ var draw = function() {
 
     // Plot active members
     canvas.beginPath();
-    for (i = 0; i < data.length; i++) {
-        d = data[i];
-        if (d[0]) {
-            cx = xScale(d[1]);
-            cy = yScale(d[2]);
+    for (key in data) {
+        if (data[key].shade) {
+            cx = xScale(data[key].x);
+            cy = yScale(data[key].y);
             canvas.moveTo(cx, cy);
             canvas.arc(cx, cy, 1.5, 0, 2 * Math.PI);
         }
     }
     canvas.fillStyle = "rgba(149, 165, 166, 0.6)";
     canvas.fill();
-}
+};
 
 // Draw ripples on SVG
 var rippleAnimate = function() {
@@ -245,8 +243,8 @@ var rippleAnimate = function() {
 		    var circle = overlaySVG.append("circle")
             .data([datum])
             .attr("class", "ripple")
-		        .attr("cx", function(d) { return xScale(d[1]); })
-		        .attr("cy", function(d) { return yScale(d[2]); })
+		        .attr("cx", function(d) { return xScale(d.x); })
+		        .attr("cy", function(d) { return yScale(d.y); })
 		        .attr("r", 0)
 		        .style("stroke-width", 2)
 		        .transition()
@@ -259,7 +257,7 @@ var rippleAnimate = function() {
 		            d3.select(this).remove();
 		        });
 		}
-}
+};
 
 // Draw hover circles
 var drawHover = function() {
@@ -272,11 +270,11 @@ var drawHover = function() {
         var circle = overlaySVG.append("circle")
             .data([datum])
             .attr("class", "hover")
-            .attr("cx", function(d) { return xScale(d[1]); })
-            .attr("cy", function(d) { return yScale(d[2]); })
+            .attr("cx", function(d) { return xScale(d.x); })
+            .attr("cy", function(d) { return yScale(d.y); })
             .attr("r", 5);
     }
-}
+};
 
 // Draw similar zone
 var drawSimilar = function() {
@@ -289,11 +287,11 @@ var drawSimilar = function() {
         var circle = overlaySVG.append("circle")
             .data([datum])
             .attr("class", "similar")
-            .attr("cx", function(d) { return xScale(d[1]); })
-            .attr("cy", function(d) { return yScale(d[2]); })
+            .attr("cx", function(d) { return xScale(d.x); })
+            .attr("cy", function(d) { return yScale(d.y); })
             .attr("r", 50);
     }
-}
+};
 
 // Draw current playing circles
 var drawCurrent = function() {
@@ -307,23 +305,23 @@ var drawCurrent = function() {
         .data([datum])
         .attr("class", "current")
         .attr("id", "inner")
-        .attr("cx", function(d) { return xScale(d[1]); })
-        .attr("cy", function(d) { return yScale(d[2]); })
+        .attr("cx", function(d) { return xScale(d.x); })
+        .attr("cy", function(d) { return yScale(d.y); })
         .attr("r", 5);
 
     overlaySVG.append("circle")
         .data([datum])
         .attr("class", "current")
-        .attr("cx", function(d) { return xScale(d[1]); })
-        .attr("cy", function(d) { return yScale(d[2]); })
+        .attr("cx", function(d) { return xScale(d.x); })
+        .attr("cy", function(d) { return yScale(d.y); })
         .attr("r", 15);
-}
+};
 
 // Translate circles in case of scale change
 var circlesTranslate = function() {
     overlaySVG.selectAll("circle")
-        .attr("cx", function(d) { return xScale(d[1]); })
-        .attr("cy", function(d) { return yScale(d[2]); });
+        .attr("cx", function(d) { return xScale(d.x); })
+        .attr("cy", function(d) { return yScale(d.y); });
 };
 
 // Initialize scatter plot
@@ -336,21 +334,21 @@ ui.initScatter = function(player) {
 
     xScale = d3.scale.linear()
         .domain([
-            Math.min.apply(null, data.map(function(d) {
-                return d[1];
+            Math.min.apply(null, Object.keys(data).map(function(val, idx) {
+                return data[val].x;
             })),
-            Math.max.apply(null, data.map(function(d) {
-                return d[1];
+            Math.max.apply(null, Object.keys(data).map(function(val, idx) {
+                return data[val].x;
             }))])
         .range([0, scatterWidth]);
 
     yScale = d3.scale.linear()
         .domain([
-            Math.min.apply(null, data.map(function(d) {
-                return d[2];
+            Math.min.apply(null, Object.keys(data).map(function(val, idx) {
+                return data[val].y;
             })),
-            Math.max.apply(null, data.map(function(d) {
-                return d[2];
+            Math.max.apply(null, Object.keys(data).map(function(val, idx) {
+                return data[val].y;
             }))])
         .range([scatterHeight, 0]);
 
@@ -441,25 +439,25 @@ ui.initScatter = function(player) {
             minVal,
             currentVal;
 
-        for (i = 0; i < data.length; i++) {
-            if (data[i][0]) {
+        for (var key in data) {
+            if (data[key].shade) {
                 if (minIdx == -1) {
-                    minIdx = i;
+                    minIdx = key;
                     minVal = distance(minIdx);
                 }
                 else {
-                    currentVal = distance(i);
+                    currentVal = distance(key);
                     if (currentVal < minVal) {
                         minVal = currentVal;
-                        minIdx = i;
+                        minIdx = key;
                     }
                 }
             }
         }
 
         // Give distance from the point
-        function distance(idx) {
-            return Math.abs(data[idx][1] - point.x) + Math.abs(data[idx][2] - point.y);
+        function distance(key) {
+            return Math.abs(data[key].x - point.x) + Math.abs(data[key].y - point.y);
         };
 
         return minIdx;
