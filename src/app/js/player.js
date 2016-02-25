@@ -205,164 +205,94 @@ Player.prototype.getData = function(songId, callback) {
 
 // Execute the given command
 Player.prototype.execute = function(cmd, callback) {
-    var that = this;
+    var that = this,
+        action = cmd.match(/\S+/g);
 
-    var command = cmd.split(" "),
-        action = command[0],
-        args;
-
-    if (command.length > 1) {
-        command.shift();
-        args = command.join(" ");
+    if (action.length < 1) {
+        callback("nf");
     }
+    else {
+        var args = action.splice(1);
+        action = action[0];
 
-    // Handle love
-    if (["love", "l"].indexOf(action) > -1) {
-        if (that.scrobbler.active) {
-            that.scrobbler.love(that.currentData, function(res) {
-                callback(["l", "love"]);
-            });
+        // Handle love
+        if (["love", "l"].indexOf(action) > -1) {
+            if (that.scrobbler.active) {
+                that.scrobbler.love(that.currentData, function(res) {
+                    callback(["l", "love"]);
+                });
+            }
+            else {
+                callback("nf");
+            }
         }
-        else {
-            callback("nf");
+        // Handle download
+        else if (["download", "d"].indexOf(action) > -1) {
+            if (args[0] == "y") {
+                callback(["d", "ok"]);
+            }
+            else if (args[0] == null) {
+                callback(["d", "confirm"]);
+            }
+            else {
+                callback("nf");
+            }
         }
-    }
-    // Handle download
-    else if (["download", "d"].indexOf(action) > -1) {
-        if (args == "y") {
-            callback(["d", "ok"]);
+        // Handle repeat
+        else if (["repeat", "r"].indexOf(action) > -1) {
+            that.repeat = !that.repeat;
+            callback(["r", that.repeat]);
         }
-        else if (args == undefined) {
-            callback(["d", "confirm"]);
+        // Handle artist
+        else if (["artist", "a"].indexOf(action) > -1) {
+            filters.artist(that, args, callback);
         }
-        else {
-            callback(["d", "error"]);
+        // Handle album
+        else if (["album", "am"].indexOf(action) > -1) {
+            filters.album(that, args, callback);
         }
-    }
-    // Handle repeat
-    else if (["repeat", "r"].indexOf(action) > -1) {
-        that.repeat = !that.repeat;
-        callback(["r", that.repeat]);
-    }
-    // Handle artist
-    else if (["artist", "a"].indexOf(action) > -1) {
-        if (!that.freemodeSave) {
-            that.freemodeSave = that.currentIndex;
+        // Handle search
+        else if (["search", "s"].indexOf(action) > -1) {
+            filters.search(that, args, callback);
         }
-
-        var seq = [];
-        that.beetsDb.all("SELECT id FROM items WHERE artist = ?", that.currentData.artist, function(err, rows) {
-            rows.forEach(function(row) {
-                seq.push(row.id);
-            });
-            that.seqCount = seq.length;
-            seq = utils.shuffle(seq);
-            that.sequence = seq;
-            that.currentIndex = 0;
-
-            callback(["m", "artist"]);
-        });
-    }
-    // Handle album
-    else if (["album", "am"].indexOf(action) > -1) {
-        if (!that.freemodeSave) {
-            that.freemodeSave = that.currentIndex;
+        // Handle similar
+        else if (["similar", "sim"].indexOf(action) > -1) {
+            filters.similar(that, args, callback);
         }
-
-        seq = [];
-        that.beetsDb.all("SELECT id FROM items WHERE album = ?", that.currentData.album, function(err, rows) {
-            rows.forEach(function(row) {
-                seq.push(row.id);
-            });
-            that.seqCount = seq.length;
-            seq = utils.shuffle(seq);
-            that.sequence = seq;
-            that.currentIndex = 0;
-
-            callback(["m", "album"]);
-        });
-    }
-    // Handle search
-    else if (["search", "s"].indexOf(action) > -1) {
-        if (!that.freemodeSave) {
-            that.freemodeSave = that.currentIndex;
+        // Handle artist cap
+        else if (["artistcap", "cap"].indexOf(action) > -1) {
+            filters.artistCap(that, args, callback);
         }
-
-        seq = [];
-        that.beetsDb.all("SELECT id FROM items WHERE (artist || ' ' || title || ' ' || album) like '%' || ? || '%'", args, function(err, rows) {
-            rows.forEach(function(row) {
-                seq.push(row.id);
-            });
-            if (seq.length == 0) {
+        // Handle free
+        else if (["free", "f"].indexOf(action) > -1) {
+            that.sequence = that.auxSeq;
+            that.seqCount = that.sequence.length;
+            if (that.freemodeSave) {
+                that.currentIndex = that.freemodeSave;
+            }
+            that.freemodeSave = null;
+            callback(["m", "free"]);
+        }
+        // Handle sleep
+        else if (["sleep", "slp"].indexOf(action) > -1) {
+            // Set sleep
+            if (isNaN(args[0])) {
                 callback("nf");
             }
             else {
-                that.seqCount = seq.length;
-                seq = utils.shuffle(seq);
-                that.sequence = seq;
-                that.currentIndex = 0;
-
-                callback(["m", "search"]);
+                if (parseInt(args[0]) < 0) {
+                    that.sleep = null;
+                    callback(["s", false]);
+                }
+                else {
+                    that.sleep = parseInt(args[0]);
+                    callback(["s", true]);
+                }
             }
-
-        });
-    }
-    // Handle similar
-    else if (["similar", "sim"].indexOf(action) > -1) {
-        if (!that.freemodeSave) {
-            that.freemodeSave = that.currentIndex;
-        }
-
-        var distances = [];
-        var anchorPoint = that.coords[that.sequence[that.currentIndex]],
-            currentPoint;
-
-        for (var i = 0; i < that.sequence.length; i++) {
-            currentPoint = that.coords[that.sequence[i]];
-            distances.push(Math.abs(anchorPoint.x - currentPoint.x) +
-                           Math.abs(anchorPoint.y - currentPoint.y));
-        }
-
-        var similarIndices = utils.argsort(distances);
-        seq = [];
-
-        for (i = 0; i < similarIndices.length; i ++) {
-            seq.push(that.sequence[similarIndices[i]]);
-        }
-        that.sequence = seq;
-        that.currentIndex = 0;
-
-        callback(["m", "similar"]);
-    }
-    // Handle free
-    else if (["free", "f"].indexOf(action) > -1) {
-        that.sequence = that.auxSeq;
-        that.seqCount = that.sequence.length;
-        if (that.freemodeSave) {
-            that.currentIndex = that.freemodeSave;
-        }
-        that.freemodeSave = null;
-        callback(["m", "free"]);
-    }
-    // Handle sleep
-    else if (["sleep", "slp"].indexOf(action) > -1) {
-        // Set sleep
-        if (isNaN(args)) {
-            callback("nf");
         }
         else {
-            if (parseInt(args) < 0) {
-                that.sleep = null;
-                callback(["s", false]);
-            }
-            else {
-                that.sleep = parseInt(args);
-                callback(["s", true]);
-            }
+            callback("nf");
         }
-    }
-    else {
-        callback("nf");
     }
 };
 

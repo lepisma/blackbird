@@ -122,7 +122,7 @@ $(document).on("keypress", "#command-input", function(e) {
                 }
                 else if (data[0] == "d") {
                     // flag error if youtubeWindow not opened
-                    if ((blackbird.youtubeWindow == null) || (data[1] == "error")) {
+                    if (blackbird.youtubeWindow == null) {
                         ui.flash("error");
                     }
                     else {
