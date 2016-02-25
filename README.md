@@ -47,8 +47,9 @@
 - `s <term>` / `search <term>` → *Search mode*. View items with term in name/artist/album
 - `f` / `free` → *Free mode*. View all items
 - `sim` / `similar` → Sort in-mode according to similarity with current song
+- `cap <n>` / `artistcap <n>` → Filter artists with less than `n` songs
 - `r` / `repeat` → Toggle repeat
-- `slp <n>` / `sleep <n>` → Sleep after playing `n` songs
+- `slp <n>` / `sleep <n>` → Sleep after playing `n` songs. Set negative `n` for reset
 - `l` / `love` → Mark songs as loved in last.fm
 - `d` / `download` → Download music from youtube
 
