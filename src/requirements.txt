@@ -1,4 +1,4 @@
-eyed3
+beets
 zerorpc
 numpy
 pyprind

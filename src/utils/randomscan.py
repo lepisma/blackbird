@@ -3,10 +3,7 @@ Script for scanning music directory and generating random coordinates
 """
 
 import sqlite3
-import eyed3
-import pyprind
 import os
-import cPickle
 from numpy.random import normal as random
 import yaml
 from setupdb import reset
