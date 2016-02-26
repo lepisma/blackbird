@@ -7,59 +7,33 @@ var artist = function(player, args, callback) {
     // Songs from current artist
     saveFreemodeIndex(player);
 
-    var seq = [];
-    player.beetsDb.all("SELECT id FROM items WHERE artist = ?", player.currentData.artist, function(err, rows) {
-        rows.forEach(function(row) {
-            seq.push(row.id);
-        });
-        player.seqCount = seq.length;
-        seq = utils.shuffle(seq);
-        player.sequence = seq;
-        player.currentIndex = 0;
-
-        callback(["m", "artist"]);
-    });
+    var query = {
+        "sql": "SELECT id FROM items WHERE artist = ?",
+        "param": player.currentData.artist
+    };
+    sqlfilter(query, "artist", player, callback);
 };
 
 var album = function(player, args, callback) {
     // Songs from current album
     saveFreemodeIndex(player);
 
-    var seq = [];
-    player.beetsDb.all("SELECT id FROM items WHERE album = ?", player.currentData.album, function(err, rows) {
-        rows.forEach(function(row) {
-            seq.push(row.id);
-        });
-        player.seqCount = seq.length;
-        seq = utils.shuffle(seq);
-        player.sequence = seq;
-        player.currentIndex = 0;
-
-        callback(["m", "album"]);
-    });
+    var query = {
+        "sql": "SELECT id FROM items WHERE album = ?",
+        "param": player.currentData.album
+    };
+    sqlfilter(query, "album", player, callback);
 };
 
 var search = function(player, args, callback) {
     // Search results
     saveFreemodeIndex(player);
 
-    var seq = [];
-    player.beetsDb.all("SELECT id FROM items WHERE (artist || ' ' || title || ' ' || album) like '%' || ? || '%'", args.join(" "), function(err, rows) {
-        rows.forEach(function(row) {
-            seq.push(row.id);
-        });
-        if (seq.length == 0) {
-            callback("nf");
-        }
-        else {
-            player.seqCount = seq.length;
-            seq = utils.shuffle(seq);
-            player.sequence = seq;
-            player.currentIndex = 0;
-
-            callback(["m", "search"]);
-        }
-    });
+    var query = {
+        "sql": "SELECT id FROM items WHERE (artist || ' ' || title || ' ' || album) like '%' || ? || '%'",
+        "param": args.join(" ")
+    };
+    sqlfilter(query, "search", player, callback);
 };
 
 var similar = function(player, args, callback) {
@@ -72,6 +46,7 @@ var similar = function(player, args, callback) {
 
     for (var i = 0; i < player.sequence.length; i++) {
         currentPoint = player.coords[player.sequence[i]];
+        console.log(i);
         distances.push(Math.abs(anchorPoint.x - currentPoint.x) +
                        Math.abs(anchorPoint.y - currentPoint.y));
     }
@@ -101,25 +76,36 @@ var artistCap = function(player, args, callback) {
             callback("nf");
         }
         else {
-            var seq = [];
-            player.beetsDb.all("SELECT id FROM items WHERE artist IN (SELECT artist FROM items GROUP BY artist HAVING count(*) <= ?)", cap, function(err, rows) {
-                rows.forEach(function(row) {
-                    seq.push(row.id);
-                });
-                if (seq.length == 0) {
-                    callback("nf");
-                }
-                else {
-                    player.seqCount = seq.length;
-                    seq = utils.shuffle(seq);
-                    player.sequence = seq;
-                    player.currentIndex = 0;
-
-                    callback(["m", "cap"]);
-                }
-            });
+            var query = {
+                "sql": "SELECT id FROM items WHERE artist IN (SELECT artist FROM items GROUP BY artist HAVING count(*) <= ?)",
+                "param": cap
+            };
+            sqlfilter(query, "cap", player, callback);
         }
     }
+};
+
+// Common functions
+
+var sqlfilter = function(query, name, player, callback) {
+    // General sql filter on beetsDb
+    var seq = [];
+    player.beetsDb.all(query.sql, query.param, function(err, rows) {
+        rows.forEach(function(row) {
+            seq.push(row.id);
+        });
+        if (seq.length == 0) {
+            callback("nf");
+        }
+        else {
+            player.seqCount = seq.length;
+            seq = utils.shuffle(seq);
+            player.sequence = seq;
+            player.currentIndex = 0;
+
+            callback(["m", name]);
+        }
+    });
 };
 
 var saveFreemodeIndex = function(player) {
