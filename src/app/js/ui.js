@@ -155,6 +155,7 @@ ui.metadataShow = function(metadata) {
     $("#artist-input").val(metadata.artist);
     $("#title-input").val(metadata.title);
     $("#metadata-wrap").fadeIn();
+    $("#title-input").focus();
 };
 
 // Hide and return metadata fields
