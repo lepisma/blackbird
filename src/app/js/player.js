@@ -233,15 +233,7 @@ Player.prototype.execute = function(cmd, callback) {
         }
         // Handle download
         else if (["download", "d"].indexOf(action) > -1) {
-            if (args[0] == "y") {
-                callback(["d", "ok"]);
-            }
-            else if (args[0] == null) {
-                callback(["d", "confirm"]);
-            }
-            else {
-                callback("nf");
-            }
+            callback(["d", "download"]);
         }
         // Handle repeat
         else if (["repeat", "r"].indexOf(action) > -1) {

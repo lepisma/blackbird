@@ -99,33 +99,58 @@
 }
 
 // Metadata
-#metadata {
+#metadata-wrap {
     display: none;
-    position: absolute;
+    position: fixed;
+    top: 50px;
     bottom: 40px;
+    left: 0px;
     right: 0px;
-    width: 150px;
-    background-color: rgba(23, 23, 23, 0.6);
-    font-size: 11px;
-    color: $accent;
     z-index: 100;
-    padding: 20px;
-    text-align: right;
-    border-top-left-radius: 10px;
+    background-color: rgba(23, 23, 23, 0.8);
+    transition-duration: 0s;
 
-    #artist-input {
-        margin-bottom: 6px;
-    }
+    #metadata {
+        position: absolute;
+        top: 40%;
+        left: 50%;
+        transform: translateX(-50%) translateY(-50%);
+        width: 500px;
+        font-size: 16px;
+        color: $accent;
 
-    input {
-        width: 100%;
-        color: rgb(180, 180, 180);
-        text-align: right;
-        background: transparent;
-        border-width: 0px;
-        border-bottom-width: 1px;
-        border-style: solid;
-        border-color: $accent;
+        #confirm-metadata {
+            height: 50px;
+            padding-top: 5px;
+            text-align: center;
+            font-size: 15px;
+            color: rgb(180, 180, 180);
+            .key-btn {
+                border-style: solid;
+                border-width: 1px;
+                border-radius: 5px;
+                font-family: "Hack";
+                font-size: 14px;
+                padding: 3px;
+                padding-left: 7px;
+                padding-right: 7px;
+            }
+        }
+
+        .metadata-label {
+            text-align: right;
+        }
+
+        input {
+            font-size: 40px;
+            width: 100%;
+            color: rgb(180, 180, 180);
+            background: transparent;
+            border-width: 0px;
+            border-bottom-width: 1px;
+            border-style: solid;
+            border-color: $accent;
+        }
     }
 }
 
@@ -314,7 +339,7 @@
     position: absolute;
     bottom: 0px;
     width: 100%;
-    height: 43px;
+    height: 40px;
     background-color: $deep;
     display: inline-block;
 

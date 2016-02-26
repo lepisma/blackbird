@@ -154,12 +154,12 @@ ui.setMode = function(player, mode) {
 ui.metadataShow = function(metadata) {
     $("#artist-input").val(metadata.artist);
     $("#title-input").val(metadata.title);
-    $("#metadata").show();
+    $("#metadata-wrap").fadeIn();
 };
 
 // Hide and return metadata fields
 ui.metadataReturn = function() {
-    $("#metadata").hide();
+    $("#metadata-wrap").fadeOut();
     return {
         "artist": $("#artist-input").val(),
         "title": $("#title-input").val()

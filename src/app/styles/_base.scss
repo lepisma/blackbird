@@ -8,58 +8,16 @@ $accent: #00AAAA;
 $deep: #171717;
 $middle: #272727;
 
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-button {
-    width: 0px;
-    height: 0px;
-}
-
-::-webkit-scrollbar-thumb {
-    background: $deep;
-    border: 0px none;
-
-    &:hover {
-        background: $deep;
-    }
-    &:active {
-        background: $middle;
-    }
-}
-
-::-webkit-scrollbar-track {
-    background: transparent;
-    border: 0px none;
-
-    &:hover, &:active {
-        background: transparent;
-    }
-}
-
-::-webkit-scrollbar-corner {
-    background: transparent;
-}
-
 * {
     outline: none;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     user-select: none;
     margin: 0px;
     padding: 0px;
     overflow: hidden;
     transition-duration: 400ms;
     font-family: "Webly Sleek";
-}
-
-::-moz-selection {
-    background: $accent;
 }
 
 ::selection {

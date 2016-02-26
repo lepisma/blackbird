@@ -68,7 +68,7 @@ $("#youtube-btn").click(function() {
         blackbird.youtubeWindow.loadURL("https://youtube.com");
         blackbird.youtubeWindow.on("closed", function() {
             blackbird.youtubeWindow = null;
-            $("#metadata").hide();
+            $("#metadata-wrap").fadeOut();
         });
     }
 });
@@ -92,14 +92,31 @@ blackbird.ipc.on("ping", function(event, arg) {
 
 // Command line entry
 $(document).keydown(function(e) {
-    if (e.keyCode==88 && e.altKey) {
+    if (e.keyCode == 88 && e.altKey) {
         $("#command-input").select();
+    }
+});
+
+// Close metadata div
+$(document).keydown(function(e) {
+    if (e.keyCode == 27) {
+        $("#metadata-wrap").fadeOut();
+    }
+});
+
+// Initiate download
+$(document).on("keypress", "#metadata input", function(e) {
+    if (e.which == 13) {
+        // Download using data from input boxes
+        metadata = ui.metadataReturn();
+        var url = blackbird.youtubeWindow.getURL();
+        blackbird.player.downloader.download(url, metadata);
     }
 });
 
 // Close
 $(document).keydown(function(e) {
-    if (e.keyCode==87 && e.ctrlKey) {
+    if (e.keyCode == 87 && e.ctrlKey) {
         blackbird.mainWindow.close();
     }
 });
@@ -135,18 +152,9 @@ $(document).on("keypress", "#command-input", function(e) {
                         ui.flash("error");
                     }
                     else {
-                        // Do something for download
-                        if (data[1] == "confirm") {
-                            // Fill and confirm input boxes
-                            var metadata = blackbird.player.downloader.parseMetadata(blackbird.youtubeWindow.getTitle());
-                            ui.metadataShow(metadata);
-                        }
-                        else if (data[1] == "ok") {
-                            // Download using data from input boxes
-                            metadata = ui.metadataReturn();
-                            var url = blackbird.youtubeWindow.getURL();
-                            blackbird.player.downloader.download(url, metadata);
-                        }
+                        // Fill and confirm input boxes
+                        var metadata = blackbird.player.downloader.parseMetadata(blackbird.youtubeWindow.getTitle());
+                        ui.metadataShow(metadata);
                     }
                 }
             }
