@@ -47,7 +47,6 @@ var search = function(player, args, callback) {
     while (["+", "-"].indexOf(cleaned[cleaned.length-1]) > -1) {
         cleaned.pop();
     }
-    console.log(cleaned);
 
     var sql = [],
         param = [],
@@ -110,7 +109,6 @@ var similar = function(player, args, callback) {
 
     for (var i = 0; i < player.sequence.length; i++) {
         currentPoint = player.coords[player.sequence[i]];
-        console.log(i);
         distances.push(Math.abs(anchorPoint.x - currentPoint.x) +
                        Math.abs(anchorPoint.y - currentPoint.y));
     }
