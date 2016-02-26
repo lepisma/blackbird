@@ -97,9 +97,6 @@ var search = function(player, args, callback) {
         "param": param
     };
 
-    console.log(query.sql);
-    console.log(query.param);
-
     sqlfilter(query, "search", player, callback);
 };
 
