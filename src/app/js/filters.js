@@ -29,10 +29,77 @@ var search = function(player, args, callback) {
     // Search results
     saveFreemodeIndex(player);
 
+    // Generate query
+    // + is union
+    // - is exception
+    // others are intersected
+
+    // Clean up continuous repetitions
+    var cleaned = args.filter(function(item, index, arr) {
+        return (index == 0) || (item != arr[index-1]);
+    });
+
+    // Remove first +
+    if (cleaned[0] == "+") {
+        cleaned.shift();
+    }
+    // Remove ending operators +/-
+    while (["+", "-"].indexOf(cleaned[cleaned.length-1]) > -1) {
+        cleaned.pop();
+    }
+    console.log(cleaned);
+
+    var sql = [],
+        param = [],
+        inWords = false;
+    // Wrap around
+    sql.push("SELECT id FROM");
+    cleaned.forEach(function(item, index) {
+        if (item == "+") {
+            if ((!inWords) && (index != 0)) {
+                // Override previous operator
+                sql.pop();
+            }
+            // Apply operator
+            sql.push(") UNION SELECT id FROM (");
+            inWords = false;
+        }
+        else if (item == "-") {
+            if (index == 0) {
+                // First -
+                sql.push("( SELECT id FROM items");
+            }
+            else if (!inWords) {
+                // Override previous operator
+                sql.pop();
+            }
+            // Apply operator
+            sql.push(") EXCEPT SELECT id FROM (");
+            inWords = false;
+        }
+        else {
+            if (inWords) {
+                sql.push("INTERSECT");
+            }
+            else if (index == 0 ){
+                sql.push("(");
+            }
+            sql.push("SELECT id FROM items WHERE (artist || ' ' || title || ' ' || album) like '%' || ? || '%'");
+            param.push(item);
+            inWords = true;
+        }
+    });
+    // Close
+    sql.push(")");
+
     var query = {
-        "sql": "SELECT id FROM items WHERE (artist || ' ' || title || ' ' || album) like '%' || ? || '%'",
-        "param": args.join(" ")
+        "sql": sql.join(" "),
+        "param": param
     };
+
+    console.log(query.sql);
+    console.log(query.param);
+
     sqlfilter(query, "search", player, callback);
 };
 
@@ -91,19 +158,25 @@ var sqlfilter = function(query, name, player, callback) {
     // General sql filter on beetsDb
     var seq = [];
     player.beetsDb.all(query.sql, query.param, function(err, rows) {
-        rows.forEach(function(row) {
-            seq.push(row.id);
-        });
-        if (seq.length == 0) {
+        if (err) {
+            console.log(err);
             callback("nf");
         }
         else {
-            player.seqCount = seq.length;
-            seq = utils.shuffle(seq);
-            player.sequence = seq;
-            player.currentIndex = 0;
+            rows.forEach(function(row) {
+                seq.push(row.id);
+            });
+            if (seq.length == 0) {
+                callback("nf");
+            }
+            else {
+                player.seqCount = seq.length;
+                seq = utils.shuffle(seq);
+                player.sequence = seq;
+                player.currentIndex = 0;
 
-            callback(["m", name]);
+                callback(["m", name]);
+            }
         }
     });
 };
