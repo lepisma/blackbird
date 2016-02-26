@@ -93,8 +93,7 @@ blackbird.ipc.on("ping", function(event, arg) {
 // Command line entry
 $(document).keydown(function(e) {
     if (e.keyCode==88 && e.altKey) {
-        $("#command-input").val("");
-        $("#command-input").focus();
+        $("#command-input").select();
     }
 });
 
