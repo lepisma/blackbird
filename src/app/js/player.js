@@ -260,6 +260,10 @@ Player.prototype.execute = function(cmd, callback) {
         else if (["artistcap", "cap"].indexOf(action) > -1) {
             filters.artistCap(that, args, callback);
         }
+        // Handle new N
+        else if (["new", "n"].indexOf(action) > -1) {
+            filters.newN(that, args, callback);
+        }
         // Handle free
         else if (["free", "f"].indexOf(action) > -1) {
             that.sequence = that.auxSeq;

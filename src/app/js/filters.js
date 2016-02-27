@@ -147,6 +147,28 @@ var artistCap = function(player, args, callback) {
     }
 };
 
+var newN = function(player, args, callback) {
+    // Return N newly added songs
+    saveFreemodeIndex(player);
+
+    if (isNaN(args[0])) {
+        callback("nf");
+    }
+    else {
+        var N = parseInt(args[0]);
+        if (N <= 0) {
+            callback("nf");
+        }
+        else {
+            var query = {
+                "sql": "SELECT id FROM items ORDER BY added DESC LIMIT ?",
+                "param": N
+            };
+            sqlfilter(query, "new", player, callback);
+        }
+    }
+};
+
 // Common functions
 
 var sqlfilter = function(query, name, player, callback) {
@@ -188,3 +210,4 @@ exports.album = album;
 exports.search = search;
 exports.similar = similar;
 exports.artistCap = artistCap;
+exports.newN = newN;
