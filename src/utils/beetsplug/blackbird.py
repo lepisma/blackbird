@@ -13,6 +13,27 @@ import numpy as np
 from skimage.measure import block_reduce
 import sys
 from sklearn.manifold import TSNE
+from keras.models import model_from_yaml
+from keras import backend as K
+from keras.preprocessing import sequence
+
+
+class LSTMSeq2Seq(object):
+    """
+    Use Seq2Seq autoencoder to generate feature vector from sequences.
+    """
+
+    def __init__(self, architecture_file, weights_file, output_layer):
+        """
+        Initialize model
+        """
+
+        self.model = model_from_yaml(open(architecture_file).read())
+        self.model.load_weights(weights_file)
+
+        # Output function
+        self.predict = K.function([self.model.layers[0].input],
+                                  [self.model.layers[output_layer].get_output(train=False)])
 
 
 class Blackbird(BeetsPlugin):
@@ -41,7 +62,6 @@ class Blackbird(BeetsPlugin):
         cur.executemany("INSERT INTO coords VALUES (?, ?, ?)", to_insert)
         conn.commit()
         conn.close()
-
 
     def commands(self):
         """
@@ -90,22 +110,35 @@ class Blackbird(BeetsPlugin):
 
         def coords_func(lib, opts, args):
             if opts.type:
-                if opts.type != "mean":
-                    print("Only mean method supported")
-            else:
-                features_file = config["blackbird"]["seq_features"].get("unicode")
-                features = cPickle.load(open(features_file, "rb"))
+                seq_features_file = config["blackbird"]["seq_features"].get("unicode")
+                seq_features = cPickle.load(open(seq_features_file, "rb"))
 
-                keys = np.empty(len(features))
-                mean_features = np.empty((len(features), 20))
+                keys = seq_features.keys()
 
-                for idx, key in enumerate(features):
-                    length = features[key].shape[1]
-                    mean_features[idx, :] = features[key][:, int(0.1 * length):int(0.9 * length)].mean(axis=1)
-                    keys[idx] = key
+                if opts.type == "mean":
+                    features = np.empty((len(seq_features), 20))
+
+                    for idx, key in enumerate(seq_features):
+                        length = seq_features[key].shape[1]
+                        features[idx, :] = seq_features[key][:, int(0.1 * length):int(0.9 * length)].mean(axis=1)
+                elif opts.type == "lstm":
+                    print("Loading network...")
+                    model = LSTMSeq2Seq(config["blackbird"]["lstm"]["arch"].get("unicode"),
+                                        config["blackbird"]["lstm"]["weights"].get("unicode"),
+                                        int(config["blackbird"]["lstm"]["output"]))
+                    # Pad sequences
+                    maxlen = 150
+                    padded_seq_features = np.empty(len(seq_features), 20, maxlen)
+                    for idx, key in enumerate(seq_features):
+                        padded_seq_features[idx, :, :] = sequence.pad_sequences(seq_features[key], maxlen=maxlen, dtype="float32")
+
+                    features = model.predict(padded_seq_features)
+                else:
+                    print("Provide a valid --type [mean, lstm]")
+                    sys.exit(1)
 
                 print("Reducing dimensions...")
-                mean_features_2d = TSNE(n_components=2).fit_transform(mean_features)
+                features_2d = TSNE(n_components=2).fit_transform(features)
 
                 print("Writing to db...")
                 conn = sqlite3.connect(config["blackbird"]["db"].get("unicode"))
@@ -113,10 +146,10 @@ class Blackbird(BeetsPlugin):
                 cur.execute("DELETE FROM coords")
 
                 to_insert = []
-                for idx in xrange(mean_features_2d.shape[0]):
+                for idx in xrange(features_2d.shape[0]):
                     to_insert.append((keys[idx],
-                                      mean_features_2d[idx, 0],
-                                      mean_features_2d[idx, 1]))
+                                      features_2d[idx, 0],
+                                      features_2d[idx, 1]))
                 cur.executemany("INSERT INTO coords VALUES (?, ?, ?)", to_insert)
                 conn.commit()
                 conn.close()
@@ -127,7 +160,9 @@ class Blackbird(BeetsPlugin):
                     if item.id not in keys:
                         ids_to_fill.append(item.id)
 
-                self.fill(ids_to_fill, mean_features_2d.min(axis=0), mean_features_2d.max(axis=0))
+                self.fill(ids_to_fill, features_2d.min(axis=0), features_2d.max(axis=0))
+            else:
+                print("Provide a valid --type [mean, lstm]")
 
         coords_cmd.func = coords_func
         features_cmd.func = features_func
