@@ -2,21 +2,24 @@
 # Insert absolute paths
 
 # Databases path
-beets_db: ""
-blackbird_db: ""
+beets_db:
+blackbird_db:
+
+# Beets config.yaml path
+beets_config:
 
 # lastfm Credentials
 lastfm:
-  user: ""
-  password: ""
-  api_key: ""
-  secret: ""
+  user:
+  password:
+  api_key:
+  secret:
 
 # Player api port
-api_port: "1234"
+api_port: 1234
 
 # Downloader process port
-rpc_port: "1236"
+rpc_port: 1236
 
 # Youtube Download directory
-download_dir: ""
+download_dir:
