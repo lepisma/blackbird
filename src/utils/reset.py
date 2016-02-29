@@ -6,6 +6,7 @@ import sqlite3
 import os
 import yaml
 import cPickle
+import time
 
 
 config = yaml.load(open("../config.yaml").read())
@@ -16,7 +17,7 @@ db = config["blackbird_db"]
 # Reset database
 if os.path.isfile(db):
     # Create backup
-    os.rename(db, db + ".backup")
+    os.rename(db, db + ".backup." + str(time.time()))
 
 conn = sqlite3.connect(db)
 cur = conn.cursor()
@@ -28,6 +29,6 @@ features = beets_config["blackbird"]["seq_features"]
 # Reset feature base
 if os.path.isfile(features):
     # Create backup
-    os.rename(features, features + ".backup")
+    os.rename(features, features + ".backup." + str(time.time()))
 
 cPickle.dump({}, open(features, "wb"), cPickle.HIGHEST_PROTOCOL)
