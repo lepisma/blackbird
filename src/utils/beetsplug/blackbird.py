@@ -7,14 +7,11 @@ from beets.ui import Subcommand, decargs
 from beets import config
 import sqlite3
 import pyprind
-import librosa
 import cPickle
 import numpy as np
 from skimage.measure import block_reduce
 import sys
 from sklearn.manifold import TSNE
-from keras.models import model_from_yaml
-from keras import backend as K
 from keras.preprocessing import sequence
 
 
@@ -27,6 +24,10 @@ class LSTMSeq2Seq(object):
         """
         Initialize model
         """
+
+        # Deferred import
+        from keras.models import model_from_yaml
+        from keras import backend as K
 
         self.model = model_from_yaml(open(architecture_file).read())
         self.model.load_weights(weights_file)
@@ -69,6 +70,8 @@ class Blackbird(BeetsPlugin):
         """
 
         def get_mfcc(song):
+            # Deferred import (librosa was messing up general beet output)
+            import librosa
             y, sr = librosa.load(song.encode(sys.getfilesystemencoding()))
             mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=20)
             return block_reduce(mfcc, (1, 100), np.mean)
