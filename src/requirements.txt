@@ -1,8 +1,9 @@
 beets
 zerorpc
-numpy
 pyprind
 pyyaml
 librosa
 keras
 youtube-dl
+scikit-learn
+scikit-image
