@@ -27,14 +27,15 @@ class LSTMSeq2Seq(object):
 
         # Deferred import
         from keras.models import model_from_yaml
-        from keras import backend as K
+        import theano
 
         self.model = model_from_yaml(open(architecture_file).read())
         self.model.load_weights(weights_file)
 
         # Output function
-        self.predict = K.function([self.model.layers[0].input],
-                                  [self.model.layers[output_layer].get_output(train=False)])
+        self.predict = theano.function([self.model.layers[0].input],
+                                       self.model.layers[output_layer].get_output(train=False),
+                                       allow_input_downcast=True)
 
 
 class Blackbird(BeetsPlugin):
@@ -128,13 +129,14 @@ class Blackbird(BeetsPlugin):
                     print("Loading network...")
                     model = LSTMSeq2Seq(config["blackbird"]["lstm"]["arch"].get("unicode"),
                                         config["blackbird"]["lstm"]["weights"].get("unicode"),
-                                        int(config["blackbird"]["lstm"]["output"]))
+                                        config["blackbird"]["lstm"]["output"].get())
                     # Pad sequences
                     maxlen = 150
-                    padded_seq_features = np.empty(len(seq_features), 20, maxlen)
+                    padded_seq_features = np.empty((len(seq_features), maxlen, 20))
                     for idx, key in enumerate(seq_features):
-                        padded_seq_features[idx, :, :] = sequence.pad_sequences(seq_features[key], maxlen=maxlen, dtype="float32")
+                        padded_seq_features[idx, :, :] = sequence.pad_sequences(seq_features[key], maxlen=maxlen, dtype="float32").T
 
+                    print("Getting vectors...")
                     features = model.predict(padded_seq_features)
                 else:
                     print("Provide a valid --type [mean, lstm]")

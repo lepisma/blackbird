@@ -1,0 +1,38 @@
+class_mode: categorical
+layers:
+- activation: tanh
+  cache_enabled: true
+  custom_name: lstm
+  forget_bias_init: one
+  go_backwards: false
+  init: glorot_uniform
+  inner_activation: hard_sigmoid
+  inner_init: orthogonal
+  input_dim: 20
+  input_length: null
+  input_shape: !!python/tuple [150, 20]
+  name: LSTM
+  output_dim: 64
+  return_sequences: false
+  stateful: false
+  trainable: true
+- {cache_enabled: true, custom_name: dropout, name: Dropout, p: 0.5, trainable: true}
+- {W_constraint: null, W_regularizer: null, activation: linear, activity_regularizer: null,
+  b_constraint: null, b_regularizer: null, cache_enabled: true, custom_name: dense,
+  init: glorot_uniform, input_dim: null, name: Dense, output_dim: 20, trainable: true}
+- {activation: tanh, cache_enabled: true, custom_name: activation, name: Activation,
+  trainable: true}
+- {cache_enabled: true, custom_name: repeatvector, n: 150, name: RepeatVector, trainable: true}
+- {cache_enabled: true, custom_name: dropout, name: Dropout, p: 0.5, trainable: true}
+- {activation: tanh, cache_enabled: true, custom_name: lstm, forget_bias_init: one,
+  go_backwards: false, init: glorot_uniform, inner_activation: hard_sigmoid, inner_init: orthogonal,
+  input_dim: 20, input_length: null, name: LSTM, output_dim: 64, return_sequences: true,
+  stateful: false, trainable: true}
+- {W_constraint: null, W_regularizer: null, activation: linear, activity_regularizer: null,
+  b_constraint: null, b_regularizer: null, cache_enabled: true, custom_name: timedistributeddense,
+  init: glorot_uniform, input_dim: null, input_length: null, name: TimeDistributedDense,
+  output_dim: 20, trainable: true}
+loss: mean_squared_error
+name: Sequential
+optimizer: {beta_1: 0.8999999761581421, beta_2: 0.9990000128746033, epsilon: 1.0e-08,
+  lr: 0.0010000000474974513, name: Adam}
