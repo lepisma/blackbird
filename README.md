@@ -4,6 +4,8 @@
 
 *Exploratory music player*
 
+Blackbird lets you explore your [beets](http://beets.io) library in acoustic feature space.
+
 ![screen](images/screen.gif)
 
 ---
@@ -31,10 +33,9 @@
   ```shell
   npm install
   pip install -r requirements.txt
-  gem install sass
   ```
 - You might need to rebuild `sqlite3` and `zerorpc`. See [here](http://electron.atom.io/docs/latest/tutorial/using-native-node-modules/).
-- Compile sass `sass --update ./app/styles`
+- Compile sass `npm run build`
 - Initialize databases and files
 
   ```shell
@@ -54,22 +55,36 @@
 
 ##### Downloading Music
 
-- Run downloader process `python ./utils/downloader.py`
+- Run downloader process
+  
+  ```shell
+  cd ./utils
+  python downloader.py
+  ```
 - Open Youtube frame (top left button)
 - Navigate to music and enter `d`
-- Confirm metadata and press return
+- Confirm metadata and press return (needs [ffmpeg](https://www.ffmpeg.org/) to save mp3)
 
 ##### Music Features
 
 MFCC coefficients of size (20, N) are generated when `beet features` is called. N depends on length of song, block_reduced (mean) using a block of size (1, 100).
 
-When `beet coords` is called with `mean` option, a clipped mean vector of size 20 is used as representation of each song. With `lstm` option, a keras lstm encoder-decoder model is loaded and resulting middle vector is used as representation. Both cases use TSNE to reduce the 20 vector to 2 and provide coordinates for visualization.
+When `beet coords` is called with `mean` option, a clipped mean vector of size 20 is used as representation of each song. With `lstm` option, a keras lstm encoder-decoder model is loaded and resulting middle vector is used as representation. Both cases use TSNE to reduce the 20 vector to 2 and provide coordinates for visualization. Lookout for training notebook and pre-trained models in `./utils`.
 
 ##### Commands
 
-- `a` / `artist` → *Artist mode*. View songs by current [song] artist
-- `am` / `album` → *Album mode*. View songs from current [song] album
-- `s <term>` / `search <term>` → *Search mode*. View items with term in name/artist/album
+- `a` / `artist` → *Artist mode*
+
+  View songs by artist of current song
+  
+- `am` / `album` → *Album mode*
+
+  View songs from album of current song
+  
+- `s <term>` / `search <term>` → *Search mode*
+
+  Filter using search query. `_space_` in query is intersection, `+` is union, `-` is except
+  
 - `f` / `free` → *Free mode*. View all items
 - `sim` / `similar` → Sort in-mode according to similarity with current song
 - `cap <n>` / `artistcap <n>` → Filter artists with less than `n` songs
@@ -92,3 +107,7 @@ When `beet coords` is called with `mean` option, a clipped mean vector of size 2
 ##### Others
 
 There is an emacs package for reading lyrics of current song (`./utils/blackbird.el`).
+
+##### Bugs / Issues
+
+blackbird is under development and therefore has crappy code structure and documentation. Feature addition/removal (and occasional refactoring) keeps happening. Please file issue [here](https://github.com/lepisma/blackbird/issues).

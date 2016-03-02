@@ -18,7 +18,8 @@
         "yamljs": ""
     },
     "scripts": {
-        "start": "electron ."
+        "start": "./node_modules/.bin/electron .",
+        "build": "./node_modules/.bin/node-sass ./app/styles/styles.scss ./app/styles/styles.css"
     },
     "repository": {
         "type": "git",
@@ -32,6 +33,6 @@
     "homepage": "https://github.com/lepisma/blackbird#readme",
     "devDependencies": {
         "electron-rebuild": "",
-        "tern": ""
+        "node-sass": ""
     }
 }
