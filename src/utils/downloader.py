@@ -26,7 +26,7 @@ class YtDownloader(object):
         filename = os.path.join(self.save_dir, filename)
         command = ["youtube-dl", "-x", "--audio-format", "mp3",
                    "--audio-quality", "0", "--no-playlist"]
-        command += ["--output", filename + '.%(ext)s']
+        command += ["--output", filename + ".%(ext)s"]
         command += [url]
 
         retcode = subprocess.call(command)
