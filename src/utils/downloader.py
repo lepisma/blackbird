@@ -25,7 +25,7 @@ class YtDownloader(object):
         # absolute filename
         filename = os.path.join(self.save_dir, filename)
         command = ["youtube-dl", "-x", "--audio-format", "mp3",
-                   "--audio-quality", "0", "--no-playlist"]
+                   "--audio-quality", "0", "--no-playlist", "--prefer-ffmpeg"]
         command += ["--output", filename + ".%(ext)s"]
         command += [url]
 
