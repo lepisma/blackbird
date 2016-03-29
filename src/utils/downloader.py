@@ -11,6 +11,7 @@ import yaml
 
 config = yaml.load(open("../config.yaml").read())
 
+
 class YtDownloader(object):
     """
     Download music from youtube
@@ -23,10 +24,12 @@ class YtDownloader(object):
         filename = metadata["artist"] + "-" + metadata["title"]
         # absolute filename
         filename = os.path.join(self.save_dir, filename)
-        command = "youtube-dl -x --audio-format mp3 --audio-quality 0 --no-playlist "
-        command += '--output "' + filename + '.%(ext)s"'
+        command = ["youtube-dl", "-x", "--audio-format", "mp3",
+                   "--audio-quality", "0", "--no-playlist"]
+        command += ["--output", filename + '.%(ext)s']
+        command += [url]
 
-        retcode = subprocess.call(command + " " + url)
+        retcode = subprocess.call(command)
 
         if retcode == 1:
             return "err"
@@ -39,6 +42,7 @@ class YtDownloader(object):
             song.tag.save()
             return "ok"
 
+
 s = zerorpc.Server(YtDownloader(config["download_dir"]))
-s.bind("tcp://0.0.0.0:" + config["rpc_port"])
+s.bind("tcp://0.0.0.0:" + str(config["rpc_port"]))
 s.run()
