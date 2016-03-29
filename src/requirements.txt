@@ -7,3 +7,4 @@ keras
 youtube-dl
 scikit-learn
 scikit-image
+eyed3
