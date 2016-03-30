@@ -24,7 +24,7 @@ Scrobbler.prototype.scrobble = function(data) {
         artist: data.artist,
         track: data.title,
         callback: function(res) {
-            console.log("scrobbled");
+            //
         }
     });
 };

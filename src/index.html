@@ -13,21 +13,34 @@
 
             <!-- title and things -->
             <div id="header">
-                <div id="youtube-btn" class="btn">
-                    <img src="./icons/youtube.png">
+                
+                <div id="player">
+                    <div id="prev-btn" class="btn player-btn">
+                        <img src="./icons/back.svg">
+                    </div>
+                    <div id="cover-wrap">
+                        <div id="cover">
+                            <img id ="cover-image" src="./icons/cover.png">
+                            <div id="play-btn" class="btn">
+                                <img src="./icons/pause.svg" id="pause-img">
+                            </div>
+                        </div>
+                        <div id="seek-section">
+                            <canvas id="vis">
+                            </canvas>
+                            <div id="seek-bar">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="next-btn" class="btn player-btn">
+                        <img src="./icons/next.svg">
+                    </div>
                 </div>
+
                 <div id="info-text">
-                    <span id="track-name">
-                    </span>
-                    <span id="artist-name">
-                    </span>
-                </div>
-                <div id="titlebar-buttons">
-                    <div id="minimize-btn" class="title-btn btn">
+                    <div id="track-name">
                     </div>
-                    <div id="maximize-btn" class="title-btn btn">
-                    </div>
-                    <div id="close-btn" class="title-btn btn">
+                    <div id="artist-name">
                     </div>
                 </div>
             </div>
@@ -50,30 +63,6 @@
                             <input id="title-input">
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- floating player -->
-            <div id="player">
-                <div id="prev-btn" class="btn player-btn">
-                    <img src="./icons/back.svg">
-                </div>
-                <div id="cover-wrap">
-                    <div id="cover">
-                        <img id ="cover-image" src="./icons/cover.png">
-                        <div id="play-btn" class="btn">
-                            <img src="./icons/pause.svg" id="pause-img">
-                        </div>
-                    </div>
-                    <div id="seek-section">
-                        <canvas id="vis">
-                        </canvas>
-                        <div id="seek-bar">
-                        </div>
-                    </div>
-                </div>
-                <div id="next-btn" class="btn player-btn">
-                    <img src="./icons/next.svg">
                 </div>
             </div>
 

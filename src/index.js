@@ -1,15 +1,14 @@
 // Electron entry point
 
+"use strict";
+
 const electron = require("electron");
 const app = electron.app;
 const shortcuts = electron.globalShortcut;
 const BrowserWindow = electron.BrowserWindow;
 const Tray = electron.Tray;
 const Menu = electron.Menu;
-const path = require("path");
 const ipcMain = electron.ipcMain;
-
-require("crash-reporter").start();
 
 var mainWindow = null;
 var appIcon = null;
@@ -20,16 +19,22 @@ app.on("ready", function() {
         height: 540,
         minWidth: 780,
         minHeight: 440,
-        frame: false,
+        frame: true,
         resizable: true,
-        icon: path.join(__dirname, "/icons/icon32.png")
+        icon: __dirname + "/icons/icon32.png"
     });
 
     mainWindow.setMenu(null);
     // Tray icon
-    appIcon = new Tray(path.join(__dirname, "/icons/icon16.png"));
+    appIcon = new Tray(__dirname + "/icons/icon16.png");
     appIcon.setToolTip("blackbird");
     var trayMenu = Menu.buildFromTemplate([
+        {
+            label: "Show/Hide",
+            click: function() {
+                toggleVisibility();
+            }
+        },
         {
             label: "Exit",
             click: function() {
@@ -39,19 +44,23 @@ app.on("ready", function() {
     ]);
     appIcon.setContextMenu(trayMenu);
     appIcon.on("clicked", function() {
+        toggleVisibility();
+    });
+
+    // and load the index.html of the app.
+    mainWindow.loadURL("file://" + __dirname + "/index.html");
+
+    // Open the devtools.
+    mainWindow.openDevTools();
+
+    var toggleVisibility = function() {
         if (mainWindow.isVisible()) {
             mainWindow.hide();
         }
         else {
             mainWindow.show();
         }
-    });
-
-    // and load the index.html of the app.
-    mainWindow.loadURL(path.join(__dirname, "index.html"));
-
-    // Open the devtools.
-    mainWindow.openDevTools();
+    };
 
     // Registed keyboard shortcuts
     var register_play = shortcuts.register("ctrl+alt+space", function() {

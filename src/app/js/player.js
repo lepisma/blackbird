@@ -208,7 +208,7 @@ Player.prototype.execute = function(cmd, callback) {
     var that = this,
         action = cmd.match(/\S+/g);
 
-    if (action.length < 1) {
+    if ((action === null) || (action.length < 1)) {
         callback("nf");
     }
     else {
@@ -230,6 +230,16 @@ Player.prototype.execute = function(cmd, callback) {
             else {
                 callback("nf");
             }
+        }
+        // Toggle Lastfm
+        else if (["lastfm", "lfm"].indexOf(action) > -1) {
+            if (that.scrobbler.active) {
+                that.scrobbler.disable();
+            }
+            else {
+                that.scrobbler.enable();
+            }
+            callback(["lfm", "lastfm"]);
         }
         // Handle download
         else if (["download", "d"].indexOf(action) > -1) {

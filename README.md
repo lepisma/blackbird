@@ -61,7 +61,7 @@ Blackbird lets you explore your [beets](http://beets.io) library in acoustic fea
   cd ./utils
   python downloader.py
   ```
-- Open Youtube frame (top left button)
+- Open youtube frame (enter `d`)
 - Navigate to music and enter `d`
 - Confirm metadata and press return (needs [ffmpeg](https://www.ffmpeg.org/) to save mp3)
 
@@ -92,6 +92,7 @@ When `beet coords` is called with `mean` option, a clipped mean vector of size 2
 - `r` / `repeat` → Toggle repeat
 - `slp <n>` / `sleep <n>` → Sleep after playing `n` songs. Set negative `n` for reset
 - `l` / `love` → Mark songs as loved in last.fm
+- `lfm` / `lastfm` → Toggle last.fm integration
 - `d` / `download` → Download music from youtube
 
 ##### Shortcuts
