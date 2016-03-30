@@ -38,6 +38,7 @@
         left: 10px;
         display: inline-flex;
         z-index: 2;
+        overflow: initial;
 
         .player-btn {
             width: 10px;
@@ -72,7 +73,7 @@
         }
 
         #cover-wrap {
-            background: $middle;
+            background: $deep;
             box-shadow: 0px 0px 10px;
             border-radius: 3px;
             width: 80px;
@@ -143,6 +144,8 @@
                 background: $accent;
                 opacity: 0.4;
                 height: 100%;
+                border-bottom-left-radius: 3px;
+                border-bottom-right-radius: 3px;
             }
 
             .ui-slider .ui-slider-handle{
@@ -161,7 +164,7 @@
         position: absolute;
         top: 25px;
         left: 150px;
-        color: #eee;
+        color: $white;
         white-space: nowrap;
         overflow: hidden;
 
@@ -170,7 +173,7 @@
         }
 
         #artist-name {
-            color: #949494;
+            color: $gray;
             font-weight: bold;
             font-size: 13px;
         }
@@ -182,11 +185,11 @@
     display: none;
     position: fixed;
     top: 0px;
-    bottom: 45px;
+    bottom: 35px;
     left: 0px;
     right: 0px;
     z-index: 100;
-    background-color: rgba(23, 23, 23, 0.8);
+    background-color: rgba($middle, 0.8);
     transition-duration: 0s;
 
     #metadata {
@@ -195,15 +198,13 @@
         left: 50%;
         transform: translateX(-50%) translateY(-50%);
         width: 500px;
-        font-size: 16px;
-        color: $accent;
 
         #confirm-metadata {
             height: 50px;
             padding-top: 5px;
             text-align: center;
             font-size: 15px;
-            color: rgb(180, 180, 180);
+            color: $gray;
             .key-btn {
                 border-style: solid;
                 border-width: 1px;
@@ -218,12 +219,14 @@
 
         .metadata-label {
             text-align: right;
+            color: $accent;
+            font-size: 16px;
         }
 
         input {
             font-size: 40px;
             width: 100%;
-            color: rgb(180, 180, 180);
+            color: $white;
             background: transparent;
             border-width: 0px;
             border-bottom-width: 1px;
@@ -246,7 +249,7 @@
         margin-left: 10px;
         margin-top: 10px;
         font-size: 11px;
-        color: rgba(255, 255, 255, 0.3);
+        color: $gray;
         pointer-events:none;
         transition-duration: 100ms;
 
@@ -302,7 +305,7 @@
         .fa-stack-1x {
             color: $accent;
             &.disabled {
-                color: rgba(255, 255, 255, 0.2);
+                color: rgba($gray, 0.5);
             }
         }
     }
@@ -316,7 +319,7 @@
             border: none;
             background-color: transparent;
             font-family: "Hack";
-            color: white;
+            color: $white;
             width: inherit;
             font-size: 11px;
         }
@@ -330,7 +333,7 @@
 
         #mode {
             font-family: "Hack";
-            color: gray;
+            color: $gray;
             font-size: 15px;
             padding: 4px;
             letter-spacing: 5px;
@@ -346,11 +349,11 @@
         width: 100%;
 
         &.error {
-            background-color: red;
+            background-color: $red;
         }
 
         &.ok {
-            background-color: #3DD342;
+            background-color: $green;
         }
     }
 }

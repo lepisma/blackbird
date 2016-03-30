@@ -5,8 +5,12 @@
 
 // Pallette
 $accent: #00AAAA;
-$deep: #171717;
-$middle: #272727;
+$deep: #151515;
+$middle: #171717;
+$white: #eee;
+$gray: #949494;
+$red: #f00;
+$green: #3DD342;
 
 * {
     outline: none;
@@ -30,7 +34,7 @@ html, body, #container {
 }
 
 body {
-    background-color: $deep;
+    background-color: $middle;
 }
 
 .btn {
