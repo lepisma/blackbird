@@ -26,7 +26,7 @@
         animation: loading 0.5s linear infinite;
     }
 
-    height: 100px;
+    height: 90px;
     width: 100%;
     background-color: $deep;
     box-shadow: 0px 0px 10px;
@@ -34,8 +34,8 @@
 
     #player {
         position: absolute;
-        top: 20px;
-        left: 20px;
+        top: 10px;
+        left: 10px;
         display: inline-flex;
         z-index: 2;
 
@@ -159,8 +159,8 @@
     // Play info
     #info-text {
         position: absolute;
-        top: 30px;
-        left: 160px;
+        top: 25px;
+        left: 150px;
         color: #eee;
         white-space: nowrap;
         overflow: hidden;
@@ -236,8 +236,8 @@
 // Scatter plot
 #scatter {
     position: absolute;
-    top: 100px;
-    bottom: 45px;
+    top: 90px;
+    bottom: 35px;
     left: 0px;
     right: 0px;
 
@@ -291,10 +291,9 @@
     position: absolute;
     bottom: 0px;
     width: 100%;
-    height: 45px;
+    height: 35px;
     background-color: $deep;
     box-shadow: 0px 0px 10px;
-    display: inline-block;
 
     .fa-stack {
         .fa-stack-2x {
@@ -309,9 +308,8 @@
     }
 
     #command-line {
-        padding: 5px;
         float: left;
-        width: 70%;
+        width: 50%;
         height: inherit;
 
         input {
@@ -325,17 +323,17 @@
     }
 
     #status-line {
-        padding: 5px;
         text-align: right;
-        letter-spacing: 5px;
         float: right;
-        width: 25%;
         height: inherit;
+        display: inline-flex;
 
         #mode {
             font-family: "Hack";
             color: gray;
-            font-size: 16px;
+            font-size: 15px;
+            padding: 4px;
+            letter-spacing: 5px;
             font-variant: small-caps;
         }
     }
