@@ -35,14 +35,15 @@ class YtDownloader(object):
             return "err"
         else:
             # Write Metadata to file
-            print("Writing metadata...")
             song = eyed3.load(filename + ".mp3")
             song.tag.artist = unicode(metadata["artist"])
             song.tag.title = unicode(metadata["title"])
             song.tag.save()
+            print("Download Complete")
             return "ok"
 
 
 s = zerorpc.Server(YtDownloader(config["download_dir"]))
 s.bind("tcp://0.0.0.0:" + str(config["rpc_port"]))
+print("Downloader Ready")
 s.run()
