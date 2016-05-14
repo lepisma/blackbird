@@ -53,7 +53,8 @@ function configure(callback) {
                     features: path.join(DATA_PATH, "features.pickle"),
                     model: {
                         arch: path.join(DATA_PATH, "model", "arch.yaml"),
-                        weights: path.join(DATA_PATH, "model", "weights.hd5")
+                        weights: path.join(DATA_PATH, "model", "weights.hd5"),
+                        output: 3
                     },
                     plugin: path.join(DATA_PATH, "beetsplug")
                 },
@@ -295,7 +296,7 @@ function beets() {
         model: {
             arch: config.data.model.arch,
             weights: config.data.model.weights,
-            output: 3
+            output: config.data.model.output
         }
     }
 
