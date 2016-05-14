@@ -46,7 +46,8 @@ class Blackbird(BeetsPlugin):
 
     def __init__(self):
         super(Blackbird, self).__init__()
-        self.register_listener("import", self.db_change)
+        self.register_listener("import", self.db_import)
+        self.register_listener("item_removed", self.db_remove)
 
     def fill(self, ids, lb, ub):
         """
@@ -91,8 +92,8 @@ class Blackbird(BeetsPlugin):
                 print("Query didn't match any item")
                 return
 
-            features_file = config["blackbird"]["features"].get("unicode")
-            features = cPickle.load(open(features_file, "rb"))
+            seq_features_file = config["blackbird"]["features"].get("unicode")
+            seq_features = cPickle.load(open(seq_features_file, "rb"))
 
             print("Finding features...")
             bar = pyprind.ProgBar(len(filtered_items))
@@ -100,14 +101,14 @@ class Blackbird(BeetsPlugin):
                 if item.id not in features:
                     try:
                         data = get_mfcc(item.path)
-                        features[item.id] = data
+                        seq_features[item.id] = data
                     except Exception as e:
                         print(e)
                 bar.update()
 
             print("Saving data...")
-            cPickle.dump(features,
-                         open(features_file, "wb"),
+            cPickle.dump(seq_features,
+                         open(seq_features_file, "wb"),
                          protocol=cPickle.HIGHEST_PROTOCOL)
 
         # Import features as coordinates
@@ -193,10 +194,52 @@ class Blackbird(BeetsPlugin):
 
         return [features_cmd, coords_cmd]
 
-    def db_change(self, lib):
-        self.register_listener("cli_exit", self.update_coordinates)
+    def db_import(self, lib):
+        self.register_listener("cli_exit", self.random_coords)
 
-    def update_coordinates(self, lib):
+    def db_remove(self, item):
+        self.register_listener("cli_exit", self.clean)
+
+    def clean(self, lib):
+        """
+        Clean up entries not present in beets db
+        """
+
+        conn = sqlite3.connect(config["blackbird"]["db"].get("unicode"))
+        cur = conn.cursor()
+        cur.execute("SELECT id FROM coords")
+        ids = cur.fetchall()
+        ids = [x[0] for x in ids]
+        beets_ids = []
+        for item in lib.items():
+            beets_ids.append(item.id)
+
+        # Remove items not in beets db from blackbird db
+        ids_to_remove = []
+        for idx in ids:
+            if idx not in beets_ids:
+                ids_to_remove.append([idx])  # wrapping in list for sqlite
+
+        print("Cleaning " + str(len(ids_to_remove)) + " entries")
+        cur.executemany("DELETE FROM coords WHERE id=?", ids_to_remove)
+        conn.commit()
+        conn.close()
+
+        seq_features_file = config["blackbird"]["features"].get("unicode")
+        seq_features = cPickle.load(open(seq_features_file, "rb"))
+
+        # Remove sequential data also
+        for idx in ids_to_remove:
+            try:
+                seq_features.pop(idx[0])
+            except KeyError:
+                continue
+
+        cPickle.dump(seq_features,
+                     open(seq_features_file, "wb"),
+                     protocol=cPickle.HIGHEST_PROTOCOL)
+
+    def random_coords(self, lib):
         """
         Update coordinates in blackbird database after beets db change
         """
