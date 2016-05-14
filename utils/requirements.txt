@@ -3,5 +3,6 @@ pyprind
 pyyaml
 librosa
 keras
+seaborn
 scikit-learn
 scikit-image
