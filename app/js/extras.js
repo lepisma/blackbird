@@ -2,21 +2,28 @@
 
 const restify = require("restify");
 const lastfm = require("simple-lastfm");
-const zerorpc = require("zerorpc");
 const sanitize = require("sanitize-filename");
+const ytdl = require("youtube-dl");
+const id3 = require("node-id3");
+const path = require("path");
 const ui = require("./ui");
 
 var Scrobbler = function(lastfmCreds) {
     // Lastfm Scrobbler
     var that = this;
-    that.active = false;
-    that.lfm = new lastfm({
-        api_key: lastfmCreds.api_key,
-        api_secret: lastfmCreds.secret,
-        username: lastfmCreds.user,
-        password: lastfmCreds.password
-    });
-    that.enable();
+    if (lastfmCreds.user != "") {
+        that.active = false;
+        that.lfm = new lastfm({
+            api_key: lastfmCreds.api,
+            api_secret: lastfmCreds.secret,
+            username: lastfmCreds.user,
+            password: lastfmCreds.password
+        });
+        that.enable();
+    }
+    else {
+        that.disable();
+    }
 };
 
 Scrobbler.prototype.scrobble = function(data) {
@@ -40,12 +47,17 @@ Scrobbler.prototype.love = function(data, callback) {
 Scrobbler.prototype.enable = function() {
     // Get session key and activate scrobbling
     var that = this;
-    that.lfm.getSessionKey(function(res) {
-        if (res.success) {
-            that.active = true;
-            ui.setIndicator("lastfm", true);
-        }
-    });
+    if (that.lfm) {
+        that.lfm.getSessionKey(function(res) {
+            if (res.success) {
+                that.active = true;
+                ui.setIndicator("lastfm", true);
+            }
+        });
+    }
+    else {
+        console.log("Lastfm credentials not found");
+    }
 };
 
 Scrobbler.prototype.disable = function() {
@@ -54,38 +66,62 @@ Scrobbler.prototype.disable = function() {
     ui.setIndicator("lastfm", false);
 };
 
-var RpcDownloadClient = function(port) {
-    // Connect to youtube downloader
-    this.client = new zerorpc.Client();
-    this.client.connect("tcp://127.0.0.1:" + port);
+var Downloader = function(downloadDir) {
+    this.downloadDir = downloadDir;
 };
 
-RpcDownloadClient.prototype.parseMetadata = function(title) {
+Downloader.prototype.parseMetadata = function(title) {
     // Return artist and track name from title
     splits = sanitize(title).split("-");
     splits.pop(); // Last element is youtube
     if (splits.length == 2) {
         return {
-            "artist": splits[0].trim(),
-            "title": splits[1].trim()
+            artist: splits[0].trim(),
+            title: splits[1].trim()
         };
     }
     else {
         // Return thing for user to handle
         // Don't try to be intelligent, you are not
         return {
-            "artist": splits.join("-"),
-            "title": splits.join("-")
+            artist: splits.join("-"),
+            title: splits.join("-")
         };
     }
 };
 
-RpcDownloadClient.prototype.download = function(url, metadata) {
-    // Perform a download request
-    this.client.invoke("save", url, metadata, function(err, res, more) {
-        console.log(err);
+Downloader.prototype.download = function(url, metadata) {
+    var filename = metadata.artist + "-" + metadata.title;
+    filename = path.join(this.downloadDir, filename);
+    ytdl.exec(url, [
+        "-x",
+        "--audio-format",
+        "mp3",
+        "--audio-quality",
+        "0",
+        "--no-playlist",
+        "--prefer-ffmpeg",
+        "--output",
+        filename + ".%(ext)s"
+    ], {}, function(err, output) {
+        if (err) {
+            ui.flash("error");
+            console.log(err);
+        }
+        console.log(output.join("\n"));
+
+        // Write tags
+        var tags = {
+            title: metadata.title,
+            artist: metadata.artist
+        };
+        if (id3.write(tags, filename + ".mp3") == false) {
+            ui.flash("error");
+        }
+        else {
+            ui.flash("ok");
+        }
     });
-    ui.flash("ok");
 };
 
 var API = function(player, port) {
@@ -122,4 +158,4 @@ var API = function(player, port) {
 
 exports.Scrobbler = Scrobbler;
 exports.API = API;
-exports.RpcDownloadClient = RpcDownloadClient;
+exports.Downloader = Downloader;

@@ -33,9 +33,10 @@ class LSTMSeq2Seq(object):
         self.model.load_weights(weights_file)
 
         # Output function
-        self.predict = theano.function([self.model.layers[0].input],
-                                       self.model.layers[output_layer].get_output(train=False),
-                                       allow_input_downcast=True)
+        self.predict = theano.function(
+            [self.model.layers[0].input],
+            self.model.layers[output_layer].get_output(train=False),
+            allow_input_downcast=True)
 
 
 class Blackbird(BeetsPlugin):
@@ -58,9 +59,10 @@ class Blackbird(BeetsPlugin):
         print("Filling random values for " + str(len(ids)) + " songs")
         to_insert = []
         for idx in xrange(len(ids)):
-            to_insert.append((ids[idx],
-                              np.random.uniform(low=lb[0], high=ub[0]),
-                              np.random.uniform(low=lb[1], high=ub[1])))
+            to_insert.append((ids[idx], np.random.uniform(low=lb[0],
+                                                          high=ub[0]),
+                              np.random.uniform(low=lb[1],
+                                                high=ub[1])))
         cur.executemany("INSERT INTO coords VALUES (?, ?, ?)", to_insert)
         conn.commit()
         conn.close()
@@ -78,8 +80,9 @@ class Blackbird(BeetsPlugin):
             return block_reduce(mfcc, (1, 100), np.mean)
 
         # Generate sequential features
-        features_cmd = Subcommand("features",
-                                  help="Generate sequential acoustic features [blackbird]")
+        features_cmd = Subcommand(
+            "features",
+            help="Generate sequential acoustic features [blackbird]")
 
         def features_func(lib, opts, args):
             filtered_items = lib.items(decargs(args))
@@ -88,7 +91,7 @@ class Blackbird(BeetsPlugin):
                 print("Query didn't match any item")
                 return
 
-            features_file = config["blackbird"]["seq_features"].get("unicode")
+            features_file = config["blackbird"]["features"].get("unicode")
             features = cPickle.load(open(features_file, "rb"))
 
             print("Finding features...")
@@ -99,22 +102,28 @@ class Blackbird(BeetsPlugin):
                         data = get_mfcc(item.path)
                         features[item.id] = data
                     except Exception as e:
-                        print e
+                        print(e)
                 bar.update()
 
             print("Saving data...")
-            cPickle.dump(features, open(features_file, "wb"), protocol=cPickle.HIGHEST_PROTOCOL)
+            cPickle.dump(features,
+                         open(features_file, "wb"),
+                         protocol=cPickle.HIGHEST_PROTOCOL)
 
         # Import features as coordinates
-        coords_cmd = Subcommand("coords",
-                                help="Generate coordinates based on calculated features [blackbird]")
-        coords_cmd.parser.add_option("-t",
-                                     "--type",
-                                     help="Type of vectorization [mean (default), lstm]")
+        coords_cmd = Subcommand(
+            "coords",
+            help=
+            "Generate coordinates based on calculated features [blackbird]")
+        coords_cmd.parser.add_option(
+            "-t",
+            "--type",
+            help="Type of vectorization [mean (default), lstm]")
 
         def coords_func(lib, opts, args):
             if opts.type:
-                seq_features_file = config["blackbird"]["seq_features"].get("unicode")
+                seq_features_file = config["blackbird"]["features"].get(
+                    "unicode")
                 seq_features = cPickle.load(open(seq_features_file, "rb"))
 
                 keys = seq_features.keys()
@@ -124,17 +133,24 @@ class Blackbird(BeetsPlugin):
 
                     for idx, key in enumerate(seq_features):
                         length = seq_features[key].shape[1]
-                        features[idx, :] = seq_features[key][:, int(0.1 * length):int(0.9 * length)].mean(axis=1)
+                        features[idx, :] = seq_features[key][:, int(
+                            0.1 * length):int(0.9 * length)].mean(axis=1)
                 elif opts.type == "lstm":
                     print("Loading network...")
-                    model = LSTMSeq2Seq(config["blackbird"]["lstm"]["arch"].get("unicode"),
-                                        config["blackbird"]["lstm"]["weights"].get("unicode"),
-                                        config["blackbird"]["lstm"]["output"].get())
+                    model = LSTMSeq2Seq(
+                        config["blackbird"]["model"]["arch"].get("unicode"),
+                        config["blackbird"]["model"]["weights"].get("unicode"),
+                        config["blackbird"]["model"]["output"].get())
                     # Pad sequences
                     maxlen = 150
-                    padded_seq_features = np.empty((len(seq_features), maxlen, 20))
+                    padded_seq_features = np.empty((len(seq_features), maxlen,
+                                                    20))
                     for idx, key in enumerate(seq_features):
-                        padded_seq_features[idx, :, :] = sequence.pad_sequences(seq_features[key], maxlen=maxlen, dtype="float32").T
+                        padded_seq_features[
+                            idx, :, :] = sequence.pad_sequences(
+                                seq_features[key],
+                                maxlen=maxlen,
+                                dtype="float32").T
 
                     print("Getting vectors...")
                     features = model.predict(padded_seq_features)
@@ -146,16 +162,17 @@ class Blackbird(BeetsPlugin):
                 features_2d = TSNE(n_components=2).fit_transform(features)
 
                 print("Writing to db...")
-                conn = sqlite3.connect(config["blackbird"]["db"].get("unicode"))
+                conn = sqlite3.connect(config["blackbird"]["db"].get(
+                    "unicode"))
                 cur = conn.cursor()
                 cur.execute("DELETE FROM coords")
 
                 to_insert = []
                 for idx in xrange(features_2d.shape[0]):
-                    to_insert.append((keys[idx],
-                                      features_2d[idx, 0],
+                    to_insert.append((keys[idx], features_2d[idx, 0],
                                       features_2d[idx, 1]))
-                cur.executemany("INSERT INTO coords VALUES (?, ?, ?)", to_insert)
+                cur.executemany("INSERT INTO coords VALUES (?, ?, ?)",
+                                to_insert)
                 conn.commit()
                 conn.close()
 
@@ -165,7 +182,9 @@ class Blackbird(BeetsPlugin):
                     if item.id not in keys:
                         ids_to_fill.append(item.id)
 
-                self.fill(ids_to_fill, features_2d.min(axis=0), features_2d.max(axis=0))
+                self.fill(ids_to_fill,
+                          features_2d.min(axis=0),
+                          features_2d.max(axis=0))
             else:
                 print("Provide a valid --type [mean, lstm]")
 

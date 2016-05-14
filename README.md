@@ -6,42 +6,29 @@
 
 Blackbird lets you explore your [beets](http://beets.io) library in acoustic feature space.
 
-![screen](images/screen.gif)
+![screen](screen.gif)
 
 ---
 
 #### Setting Up
 
 - Initialize a [beets](http://beets.io) library
-- Setup `config.yaml`
-- Modify `beets` config file to include blackbird plugin
-
-  ```yaml
-  pluginpath:
-    - <path to ./utils/beetsplug>
-  plugins: blackbird
-  blackbird:
-    db: <path to store db>
-    seq_features: <path to store sequential features>
-    lstm:
-      arch: <architecture file (yaml) for lstm model>
-      weights: <trained weights file>
-      output: <layer number to tap output from>
-  ```
-- Install dependencies
-
+- Install blackbird
+  
   ```shell
-  npm install
+  npm install -g lepisma/blackbird
+  ```
+- Install python dependencies
+  
+  ```shell
+  # Navigate to source (in local node installation directory, or clone this repo)
+  cd ./utils
   pip install -r requirements.txt
   ```
-- You might need to rebuild `sqlite3` and `zerorpc`. See [here](http://electron.atom.io/docs/latest/tutorial/using-native-node-modules/).
-- Compile sass `npm run build`
-- Initialize databases and files
+- Run `blackbird-setup init` to initialize configuration files.
+- You might need to rebuild `sqlite3`. See [here](http://electron.atom.io/docs/latest/tutorial/using-native-node-modules/).
+- Compile sass with `npm run build` if changes are made.
 
-  ```shell
-  cd ./utils
-  python reset.py
-  ```
 - `beets` imports will automatically put songs in blackbird database. Following commands are added to `beets`.
 
   ```shell
@@ -51,19 +38,7 @@ Blackbird lets you explore your [beets](http://beets.io) library in acoustic fea
   # Generate coordinates from the sequential features using specified method
   beet coords --type [mean, lstm]
   ```
-- Start with `npm start`
-
-##### Downloading Music
-
-- Run downloader process
-  
-  ```shell
-  cd ./utils
-  python downloader.py
-  ```
-- Open youtube frame (enter `d`)
-- Navigate to music and enter `d`
-- Confirm metadata and press return (needs [ffmpeg](https://www.ffmpeg.org/) to save mp3)
+- Start with `blackbird`
 
 ##### Music Features
 
@@ -90,10 +65,13 @@ When `beet coords` is called with `mean` option, a clipped mean vector of size 2
 - `cap <n>` / `artistcap <n>` → Filter artists with less than `n` songs
 - `n <n>` / `new <n>` → `n` recent imports
 - `r` / `repeat` → Toggle repeat
-- `slp <n>` / `sleep <n>` → Sleep after playing `n` songs. Set negative `n` for reset
+- `slp <n>` / `sleep <n>` → Sleep after playing `n` songs. Set negative `n` for
+  reset.
 - `l` / `love` → Mark songs as loved in last.fm
 - `lfm` / `lastfm` → Toggle last.fm integration
-- `d` / `download` → Download music from youtube
+- `d` / `download` → Download music from youtube. First command opens youtube,
+  second lets you check metadata for download. Needs
+  [ffmpeg](https://www.ffmpeg.org/) for saving mp3s. 
 
 ##### Shortcuts
 
@@ -107,8 +85,8 @@ When `beet coords` is called with `mean` option, a clipped mean vector of size 2
 
 ##### Others
 
-There is an emacs package for reading lyrics of current song (`./utils/blackbird.el`).
+There is an emacs package for reading lyrics of current song (`./utils/emacs/blackbird.el`).
 
 ##### Bugs / Issues
 
-blackbird is under development and therefore has crappy code structure and documentation. Feature addition/removal (and occasional refactoring) keeps happening. Please file issue [here](https://github.com/lepisma/blackbird/issues).
+blackbird is under development and therefore has crappy code structure and documentation. Feature addition/removal (and occasional refactoring) keeps happening. Please file issues [here](https://github.com/lepisma/blackbird/issues).

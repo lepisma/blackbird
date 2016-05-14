@@ -1,0 +1,48 @@
+{
+    "name": "blackbird",
+    "version": "0.0.1",
+    "description": "music player",
+    "main": "index.js",
+    "bin": {
+        "blackbird": "./bin/blackbird.js",
+        "blackbird-setup": "./bin/blackbird-setup.js"
+    },
+    "dependencies": {
+        "jquery": "^2.2.3",
+        "jquery-ui": "^1.10.5",
+        "font-awesome": "^4.6.1",
+        "musicmetadata": "^2.0.2",
+        "electron-prebuilt": "^1.0.0",
+        "d3": "^3.5.17",
+        "sqlite3": "^3.1.3",
+        "simple-lastfm": "^1.0.5",
+        "restify": "^4.0.4",
+        "sanitize-filename": "^1.6.0",
+        "yamljs": "^0.2.7",
+        "node-id3": "^0.0.4",
+        "youtube-dl": "^1.11.1",
+        "yargs": "^4.7.0",
+        "prompt": "^1.0.0",
+        "colors": "^1.1.2",
+        "fs-extra": "^0.30.0"
+    },
+    "scripts": {
+        "start": "./bin/blackbird.js",
+        "build": "./node_modules/.bin/node-sass ./app/styles/styles.scss ./app/styles/styles.css"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/lepisma/blackbird.git"
+    },
+    "author": "Abhinav Tushar",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/lepisma/blackbird/issues"
+    },
+    "homepage": "https://github.com/lepisma/blackbird#readme",
+    "devDependencies": {
+        "electron-rebuild": "^1.1.3",
+        "node-sass": "^3.7.0"
+    },
+    "files" : ["utils", "icons"]
+}

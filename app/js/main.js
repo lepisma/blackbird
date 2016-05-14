@@ -5,9 +5,14 @@ var blackbird = blackbird || {};
 
 window.$ = window.jQuery = require("jquery");
 const yamljs = require("yamljs");
+const os = require("os");
+const path = require("path");
 const ui = require("./app/js/ui");
 
-blackbird.config = yamljs.load("./config.yaml");
+// Config path, change this to automatic
+const CONFIG_PATH = path.join(os.homedir(), ".blackbird", "config.yaml");
+
+blackbird.config = yamljs.load(CONFIG_PATH);
 blackbird.Player = require("./app/js/player");
 blackbird.electron = require("electron");
 blackbird.ipc = blackbird.electron.ipcRenderer;

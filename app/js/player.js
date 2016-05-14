@@ -15,17 +15,17 @@ var Player = function(config, callback) {
     var that = this;
 
     // Setup DB
-    that.beetsDb = new sqlite.Database(config.beets_db);
-    that.blackbirdDb = new sqlite.Database(config.blackbird_db);
+    that.beetsDb = new sqlite.Database(config.beets.db);
+    that.blackbirdDb = new sqlite.Database(config.data.db);
 
     // Initialize lastfm scrobbler
     that.scrobbler = new extras.Scrobbler(config.lastfm);
 
     // Connect to downloader
-    that.downloader = new extras.RpcDownloadClient(config.rpc_port);
+    that.downloader = new extras.Downloader(config.download.directory);
 
     // Initialize api
-    that.api = new extras.API(that, config.api_port);
+    that.api = new extras.API(that, config.api.port);
 
     // Initialize sequences
     that.beetsDb.all("SELECT id FROM items", function(err, rows) {

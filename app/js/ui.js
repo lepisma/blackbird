@@ -162,8 +162,8 @@ ui.metadataShow = function(metadata) {
 ui.metadataReturn = function() {
     $("#metadata-wrap").fadeOut();
     return {
-        "artist": $("#artist-input").val(),
-        "title": $("#title-input").val()
+        artist: $("#artist-input").val(),
+        title: $("#title-input").val()
     };
 };
 

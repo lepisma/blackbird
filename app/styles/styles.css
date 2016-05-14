@@ -1,0 +1,285 @@
+@font-face {
+  font-family: "Hack";
+  src: url("../fonts/Hack-Regular.ttf"); }
+
+@font-face {
+  font-family: "Webly Sleek";
+  src: url("../fonts/weblysleekuil.ttf"); }
+
+* {
+  outline: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
+  transition-duration: 400ms;
+  font-family: "Webly Sleek"; }
+
+::selection {
+  background: #00AAAA; }
+
+html, body, #container {
+  height: 100%;
+  width: 100%; }
+
+body {
+  background-color: #171717; }
+
+.btn {
+  cursor: pointer; }
+
+@keyframes loading {
+  from {
+    background-position: 0 0; }
+  to {
+    background-position: 200px 100px; } }
+
+#header {
+  transition-duration: 0s;
+  height: 90px;
+  width: 100%;
+  background-color: #151515;
+  box-shadow: 0px 0px 10px;
+  -webkit-app-region: drag; }
+  #header.loading {
+    background-size: 100px 100px;
+    background-image: linear-gradient(45deg, rgba(0, 0, 0, 0.1) 25%, transparent 25%, transparent 50%, rgba(0, 0, 0, 0.1) 50%, rgba(0, 0, 0, 0.1) 75%, transparent 75%, transparent);
+    animation: loading 0.5s linear infinite; }
+  #header #player {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: inline-flex;
+    z-index: 2;
+    overflow: initial; }
+    #header #player .player-btn {
+      width: 10px;
+      position: relative;
+      opacity: 0.6; }
+      #header #player .player-btn:hover {
+        transform: scale(1.1);
+        opacity: 1; }
+      #header #player .player-btn img {
+        width: 100%;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%); }
+    #header #player #prev-btn {
+      height: 40px;
+      top: 20px;
+      margin-right: 5px; }
+    #header #player #next-btn {
+      height: 60px;
+      width: 20px;
+      margin-left: 5px;
+      top: 10px; }
+      #header #player #next-btn:hover {
+        margin-left: 8px; }
+    #header #player #cover-wrap {
+      background: #151515;
+      box-shadow: 0px 0px 10px;
+      border-radius: 3px;
+      width: 80px; }
+      #header #player #cover-wrap #cover {
+        width: 80px;
+        height: 80px; }
+        #header #player #cover-wrap #cover #cover-image {
+          position: absolute;
+          height: inherit;
+          border-top-left-radius: 3px;
+          border-top-right-radius: 3px;
+          z-index: 2;
+          width: 80px;
+          height: 80px; }
+        #header #player #cover-wrap #cover #play-btn {
+          position: absolute;
+          height: inherit;
+          width: 80px;
+          background: black;
+          z-index: 3;
+          border-top-left-radius: 3px;
+          border-top-right-radius: 3px; }
+          #header #player #cover-wrap #cover #play-btn #pause-img {
+            width: 40px;
+            height: 40px;
+            margin-left: 20px;
+            margin-top: 20px; }
+            #header #player #cover-wrap #cover #play-btn #pause-img.zoomed {
+              margin-top: -10px;
+              margin-left: -10px;
+              width: 100px;
+              height: 100px;
+              opacity: 0; }
+      #header #player #cover-wrap #seek-section {
+        position: relative;
+        width: 100%;
+        height: 10px; }
+        #header #player #cover-wrap #seek-section #vis {
+          position: absolute;
+          width: 100%;
+          height: inherit;
+          border-bottom-left-radius: 3px;
+          border-bottom-right-radius: 3px; }
+        #header #player #cover-wrap #seek-section #seek-bar {
+          cursor: pointer;
+          position: absolute;
+          height: inherit;
+          width: 100%;
+          border-bottom-left-radius: 3px;
+          border-bottom-right-radius: 3px; }
+      #header #player #cover-wrap .ui-slider-range {
+        background: #00AAAA;
+        opacity: 0.4;
+        height: 100%;
+        border-bottom-left-radius: 3px;
+        border-bottom-right-radius: 3px; }
+      #header #player #cover-wrap .ui-slider .ui-slider-handle {
+        width: 2px;
+        height: 10px;
+        background: #00AAAA;
+        position: absolute;
+        top: 0px; }
+  #header #info-text {
+    position: absolute;
+    top: 25px;
+    left: 150px;
+    color: #eee;
+    white-space: nowrap;
+    overflow: hidden; }
+    #header #info-text #track-name {
+      font-size: 20px; }
+    #header #info-text #artist-name {
+      color: #949494;
+      font-weight: bold;
+      font-size: 13px; }
+
+#metadata-wrap {
+  display: none;
+  position: fixed;
+  top: 0px;
+  bottom: 35px;
+  left: 0px;
+  right: 0px;
+  z-index: 100;
+  background-color: rgba(23, 23, 23, 0.8);
+  transition-duration: 0s; }
+  #metadata-wrap #metadata {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    width: 500px; }
+    #metadata-wrap #metadata #confirm-metadata {
+      height: 50px;
+      padding-top: 5px;
+      text-align: center;
+      font-size: 15px;
+      color: #949494; }
+      #metadata-wrap #metadata #confirm-metadata .key-btn {
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 5px;
+        font-family: "Hack";
+        font-size: 14px;
+        padding: 3px;
+        padding-left: 7px;
+        padding-right: 7px; }
+    #metadata-wrap #metadata .metadata-label {
+      text-align: right;
+      color: #00AAAA;
+      font-size: 16px; }
+    #metadata-wrap #metadata input {
+      font-size: 40px;
+      width: 100%;
+      color: #eee;
+      background: transparent;
+      border-width: 0px;
+      border-bottom-width: 1px;
+      border-style: solid;
+      border-color: #00AAAA; }
+
+#scatter {
+  position: absolute;
+  top: 90px;
+  bottom: 35px;
+  left: 0px;
+  right: 0px; }
+  #scatter #hover-info {
+    position: absolute;
+    margin-left: 10px;
+    margin-top: 10px;
+    font-size: 11px;
+    color: #949494;
+    pointer-events: none;
+    transition-duration: 100ms; }
+    #scatter #hover-info #hover-artist {
+      font-size: 12px; }
+  #scatter #scatter-overlay {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    pointer-events: none;
+    z-index: 1; }
+    #scatter #scatter-overlay circle {
+      transition-duration: 0s;
+      fill: none;
+      stroke: #00AAAA; }
+    #scatter #scatter-overlay circle.similar {
+      fill: #00AAAA;
+      opacity: 0.2;
+      stroke: none; }
+    #scatter #scatter-overlay circle.hover {
+      stroke-width: 4; }
+    #scatter #scatter-overlay circle.current {
+      stroke-width: 1; }
+      #scatter #scatter-overlay circle.current#inner {
+        stroke-width: 2; }
+
+#footer {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  height: 35px;
+  background-color: #151515;
+  box-shadow: 0px 0px 10px; }
+  #footer .fa-stack .fa-stack-2x {
+    color: transparent; }
+  #footer .fa-stack .fa-stack-1x {
+    color: #00AAAA; }
+    #footer .fa-stack .fa-stack-1x.disabled {
+      color: rgba(148, 148, 148, 0.5); }
+  #footer #command-line {
+    float: left;
+    width: 50%;
+    height: inherit; }
+    #footer #command-line input {
+      border: none;
+      background-color: transparent;
+      font-family: "Hack";
+      color: #eee;
+      width: inherit;
+      font-size: 11px; }
+  #footer #status-line {
+    text-align: right;
+    float: right;
+    height: inherit;
+    display: inline-flex; }
+    #footer #status-line #mode {
+      font-family: "Hack";
+      color: #949494;
+      font-size: 15px;
+      padding: 4px;
+      letter-spacing: 5px;
+      font-variant: small-caps; }
+  #footer #foot-line {
+    position: absolute;
+    bottom: 0px;
+    height: 3px;
+    background-color: #00AAAA;
+    width: 100%; }
+    #footer #foot-line.error {
+      background-color: #f00; }
+    #footer #foot-line.ok {
+      background-color: #3DD342; }
