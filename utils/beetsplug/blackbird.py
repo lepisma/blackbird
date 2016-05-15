@@ -27,16 +27,15 @@ class LSTMSeq2Seq(object):
 
         # Deferred import
         from keras.models import model_from_yaml
-        import theano
+        from keras import backend as K
 
         self.model = model_from_yaml(open(architecture_file).read())
         self.model.load_weights(weights_file)
 
         # Output function
-        self.predict = theano.function(
-            [self.model.layers[0].input],
-            self.model.layers[output_layer].get_output(train=False),
-            allow_input_downcast=True)
+        self.predict = K.function(
+            [self.model.layers[0].input, K.learning_phase()],
+            self.model.layers[output_layer].output)
 
 
 class Blackbird(BeetsPlugin):
@@ -154,7 +153,7 @@ class Blackbird(BeetsPlugin):
                                 dtype="float32").T
 
                     print("Getting vectors...")
-                    features = model.predict(padded_seq_features)
+                    features = model.predict([padded_seq_features, 0])
                 else:
                     print("Provide a valid --type [mean, lstm]")
                     sys.exit(1)
