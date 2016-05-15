@@ -26,7 +26,7 @@ app.on("ready", function() {
 
     mainWindow.setMenu(null);
     // Tray icon
-    appIcon = new Tray(__dirname + "/icons/icon16.png");
+    appIcon = new Tray(__dirname + "/icons/icon32.png");
     appIcon.setToolTip("blackbird");
     var trayMenu = Menu.buildFromTemplate([
         {
