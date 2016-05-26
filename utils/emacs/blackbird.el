@@ -1,12 +1,27 @@
-;;; blackbird.el --- Basic interactions with blackbird in emacs (https://github.com/lepisma/blackbird)
+;;; blackbird.el --- Basic interactions with blackbird in emacs
 
-;;; Abhinav Tushar
-;;; Lyrics feature forked from emms-get-lyrics.el
+;; Copyright (c) 2016 Abhinav Tushar
+
+;; Author: Abhinav Tushar <abhinav.tushar.vs@gmail.com>
+;; Version: 1.0
+;; Package-Requires ((request "20160108.33"))
+;; Keywords: lyrics
+;; URL: https://github.com/lepisma/blackbird
+
+;;; Commentary:
+
+;; blackbird.el provides interacting functions for blackbird.
+;; Needs w3m to be installed for reading lyrics.
+;; Lyrics feature forked from emms-get-lyrics.el
+;; Run blackbird-read-lyrics while blackbird is running.
+
+;;; Code:
 
 (require 'request)
 
+;;;###autoload
 (defun blackbird-read-lyrics ()
-  "Return details about current song"
+  "Return details about current song. Assume default port number."
   (interactive)
   (request
     "http://localhost:1234/current"
@@ -20,7 +35,6 @@
 
 (defun blackbird-lyrics-mode ()
   "Major mode for displaying lyrics."
-  (interactive)
   (kill-all-local-variables)
   (setq major-mode 'blackbird-lyrics-mode)
   (setq mode-name "Lyrics")
@@ -69,3 +83,5 @@
              (goto-char (point-min)))))))
 
 (provide 'blackbird)
+
+;;; blackbird.el ends here
