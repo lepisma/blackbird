@@ -12,6 +12,7 @@ const ipcMain = electron.ipcMain;
 
 var mainWindow = null;
 var appIcon = null;
+var closeTimer = false;
 
 app.on("ready", function() {
     mainWindow = new BrowserWindow({
@@ -76,7 +77,16 @@ app.on("ready", function() {
     });
 
     var register_hide = shortcuts.register("ctrl+alt+down", function() {
-        mainWindow.hide();
+        if (closeTimer == true) {
+            app.quit();
+        }
+        else {
+            mainWindow.hide();
+            closeTimer = true;
+            setTimeout(function() {
+                closeTimer = false;
+            }, 1000);
+        }
     });
 
     var register_show = shortcuts.register("ctrl+alt+up", function() {
