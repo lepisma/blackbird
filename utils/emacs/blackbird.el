@@ -26,7 +26,7 @@
   (kill-all-local-variables)
   (setq major-mode 'blackbird-lyrics-mode)
   (setq mode-name "Lyrics")
-  (variable-pitch-mode)
+  ;; (variable-pitch-mode)
   (run-hooks 'blackbird-lyrics-mode-hook))
 
 ;;;###autoload
@@ -107,18 +107,24 @@
           (blackbird-lyrics-mode)
           (insert "\n")
           (insert (propertize (second page-data)
-                              'face '(:foreground "DeepSkyBlue"
-                                                  :height 1.7)))
+                              'face '(:inherit variable-pitch
+                                               :foreground "DeepSkyBlue"
+                                               :height 1.6)))
           (insert "\n")
           (insert (propertize (third page-data)
-                              'face '(:height 1.2
-                                              :weight bold)))
+                              'face '(:inherit variable-pitch
+                                               :height 1.0
+                                               :weight bold
+                                               :foreground "gray")))
           (insert "\n\n")
+          (setq text-start (point))
           (insert (propertize (first page-data)
-                              'face '(:slant italic
-                                             :foreground "salmon")))
+                              'face '(:inherit variable-pitch
+                                               :height 1.1
+                                               :slant italic
+                                               :foreground "DeepPink1")))
           (switch-to-buffer buffer)
-          ;;(center-region (point-min) (point-max))
+          (add-text-properties text-start (point-max) '(line-spacing 0.4))
           (delete-trailing-whitespace)
           (setq buffer-read-only t)
           (goto-char (point-min)))
