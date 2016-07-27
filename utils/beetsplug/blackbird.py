@@ -13,6 +13,7 @@ from skimage.measure import block_reduce
 import sys
 from sklearn.manifold import TSNE
 from keras.preprocessing import sequence
+import librosa
 
 
 class LSTMSeq2Seq(object):
@@ -73,9 +74,7 @@ class Blackbird(BeetsPlugin):
         """
 
         def get_mfcc(song):
-            # Deferred import (librosa was messing up general beet output)
-            import librosa
-            y, sr = librosa.load(song.encode(sys.getfilesystemencoding()))
+            y, sr = librosa.load(unicode(song, "utf-8"))
             mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=20)
             return block_reduce(mfcc, (1, 100), np.mean)
 
