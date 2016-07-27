@@ -97,7 +97,7 @@ class Blackbird(BeetsPlugin):
             print("Finding features...")
             bar = pyprind.ProgBar(len(filtered_items))
             for item in filtered_items:
-                if item.id not in features:
+                if item.id not in seq_features:
                     try:
                         data = get_mfcc(item.path)
                         seq_features[item.id] = data
