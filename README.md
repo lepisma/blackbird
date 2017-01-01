@@ -1,5 +1,7 @@
 ![blackbird](logo.png)
 
+> I am ripping this apart [into](https://github.com/lepisma/bbq) [pieces](https://github.com/lepisma/jove). Once I finish incorporating streaming media sources in it, hopefully all the moving pieces will fall again together. Also, I badly want to replan the UI.
+
 <kbd>under development</kbd>
 
 *Exploratory music player*
